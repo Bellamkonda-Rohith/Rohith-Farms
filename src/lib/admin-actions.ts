@@ -11,12 +11,12 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const imageFileListSchema = z
-  .instanceof(FileList, { message: "Please select a file." })
-  .refine((files) => files.length > 0, 'An image is required.')
-  .refine((files) => files.length === 1, 'Only one image can be uploaded.')
-  .refine((files) => files[0].size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+  .any()
+  .refine((files) => files?.length > 0, 'An image is required.')
+  .refine((files) => files?.length < 2, 'Only one image can be uploaded.')
+  .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
   .refine(
-    (files) => ACCEPTED_IMAGE_TYPES.includes(files[0].type),
+    (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
     "Only .jpg, .jpeg, .png and .webp formats are supported."
   );
 
