@@ -20,7 +20,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { birdSchema, addBird } from '@/lib/admin-actions';
+import { addBird } from '@/lib/admin-actions';
+import { birdSchema } from '@/lib/schemas';
 
 type BirdFormValues = z.infer<typeof birdSchema>;
 
@@ -130,15 +131,17 @@ export function AddBirdForm() {
                 <FormField
                     control={form.control}
                     name="imageUrl"
-                    render={({ field: { onChange, ...props } }) => (
+                    render={({ field: { onChange, onBlur, name, ref } }) => (
                         <FormItem>
                         <FormLabel>Bird Image</FormLabel>
                         <FormControl>
                             <Input 
                                 type="file"
                                 accept="image/png, image/jpeg, image/webp"
-                                onChange={(e) => onChange(e.target.files)} 
-                                {...props} 
+                                onChange={(e) => onChange(e.target.files)}
+                                onBlur={onBlur}
+                                name={name}
+                                ref={ref}
                             />
                         </FormControl>
                         <FormDescription>Upload the main bird image.</FormDescription>
@@ -197,15 +200,17 @@ export function AddBirdForm() {
                     <FormField
                         control={form.control}
                         name="father.imageUrl"
-                        render={({ field: { onChange, ...props } }) => (
+                        render={({ field: { onChange, onBlur, name, ref } }) => (
                             <FormItem>
                             <FormLabel>Father's Image</FormLabel>
                             <FormControl>
                                 <Input 
                                     type="file"
                                     accept="image/png, image/jpeg, image/webp"
-                                    onChange={(e) => onChange(e.target.files)} 
-                                    {...props} 
+                                    onChange={(e) => onChange(e.target.files)}
+                                    onBlur={onBlur}
+                                    name={name}
+                                    ref={ref}
                                 />
                             </FormControl>
                             <FormMessage />
@@ -232,15 +237,17 @@ export function AddBirdForm() {
                     <FormField
                         control={form.control}
                         name="mother.imageUrl"
-                        render={({ field: { onChange, ...props } }) => (
+                        render={({ field: { onChange, onBlur, name, ref } }) => (
                             <FormItem>
                             <FormLabel>Mother's Image</FormLabel>
                             <FormControl>
                                  <Input 
                                     type="file"
                                     accept="image/png, image/jpeg, image/webp"
-                                    onChange={(e) => onChange(e.target.files)} 
-                                    {...props} 
+                                    onChange={(e) => onChange(e.target.files)}
+                                    onBlur={onBlur}
+                                    name={name}
+                                    ref={ref}
                                 />
                             </FormControl>
                             <FormMessage />
