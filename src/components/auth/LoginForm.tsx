@@ -51,7 +51,10 @@ export function LoginForm() {
   // Reset OTP form when it's about to be shown
   useEffect(() => {
     if (confirmationResult) {
-      otpForm.reset({ otp: "" });
+      // Use a short timeout to clear the field, fighting against aggressive browser autofill
+      setTimeout(() => {
+        otpForm.reset({ otp: "" });
+      }, 1);
     }
   }, [confirmationResult, otpForm]);
 
