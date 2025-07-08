@@ -63,12 +63,13 @@ export function LoginForm() {
       console.error("Error sending OTP:", error);
       let description = "Please check the phone number or try again. Ensure it's added as a test number in your Firebase project.";
       if (error.code === 'auth/captcha-check-failed') {
-        description = "reCAPTCHA check failed. Please authorize your domain in Firebase: Authentication -> Settings -> Authorized domains. Add 'localhost' for development.";
+        description = "reCAPTCHA failed: Your website's domain is not authorized. Go to Firebase Console -> Authentication -> Settings -> Authorized domains and add the domain from your browser's address bar.";
       }
       toast({ 
         variant: "destructive", 
         title: "Failed to send OTP", 
-        description: description
+        description: description,
+        duration: 9000,
       });
     } finally {
       setIsSubmitting(false);
