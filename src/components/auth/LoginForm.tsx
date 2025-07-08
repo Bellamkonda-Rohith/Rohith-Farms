@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 
 const phoneSchema = z.object({
-  phone: z.string().min(10, "Please enter a valid phone number with country code."),
+  phone: z.string().regex(/^\+91\d{10}$/, "Please enter a valid 10-digit Indian number, including +91."),
 });
 
 const otpSchema = z.object({
@@ -41,13 +41,13 @@ export function LoginForm() {
   useEffect(() => {
     // This effect sets up the reCAPTCHA verifier, which is required for phone auth.
     // It's invisible and attaches to the div with id 'recaptcha-container' in the root layout.
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-      "size": "invisible",
-      "callback": () => { /* reCAPTCHA solved */ }
-    });
-    return () => {
-      window.recaptchaVerifier.clear();
-    };
+    // We only create it once and attach it to the window object to avoid re-creations on re-renders.
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+        "size": "invisible",
+        "callback": () => { /* reCAPTCHA solved */ }
+      });
+    }
   }, []);
 
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
@@ -59,7 +59,11 @@ export function LoginForm() {
       toast({ title: "OTP Sent", description: `An OTP has been sent to ${values.phone}.` });
     } catch (error: any) {
       console.error("Error sending OTP:", error);
-      toast({ variant: "destructive", title: "Failed to send OTP", description: error.message });
+      toast({ 
+        variant: "destructive", 
+        title: "Failed to send OTP", 
+        description: "Please check the phone number or try again. Ensure it's added as a test number in your Firebase project." 
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +120,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <Input placeholder="+91 98765 43210" {...field} />
+                <Input placeholder="+919876543210" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
