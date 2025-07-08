@@ -61,10 +61,14 @@ export function LoginForm() {
       toast({ title: "OTP Sent", description: `An OTP has been sent to ${phoneNumber}.` });
     } catch (error: any) {
       console.error("Error sending OTP:", error);
+      let description = "Please check the phone number or try again. Ensure it's added as a test number in your Firebase project.";
+      if (error.code === 'auth/captcha-check-failed') {
+        description = "reCAPTCHA check failed. Please authorize your domain in Firebase: Authentication -> Settings -> Authorized domains. Add 'localhost' for development.";
+      }
       toast({ 
         variant: "destructive", 
         title: "Failed to send OTP", 
-        description: "Please check the phone number or try again. Ensure it's added as a test number in your Firebase project." 
+        description: description
       });
     } finally {
       setIsSubmitting(false);
