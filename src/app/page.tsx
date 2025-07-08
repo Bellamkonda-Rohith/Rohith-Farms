@@ -127,7 +127,7 @@ export default function Home() {
                 width={800}
                 height={800}
                 className="w-full h-auto aspect-square object-cover"
-                data-ai-hint="gamefowl portrait"
+                data-ai-hint="gamefowl rooster cinematic"
               />
             </motion.div>
           </div>
