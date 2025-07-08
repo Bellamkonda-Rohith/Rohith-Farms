@@ -48,10 +48,9 @@ export function LoginForm() {
     }
   }, []);
 
-  // Reset OTP form when it's about to be shown
+  // Reset OTP form when it's about to be shown to fight browser autofill
   useEffect(() => {
     if (confirmationResult) {
-      // Use a short timeout to clear the field, fighting against aggressive browser autofill
       setTimeout(() => {
         otpForm.reset({ otp: "" });
       }, 50);
@@ -111,7 +110,7 @@ export function LoginForm() {
   if (confirmationResult) {
     return (
       <Form {...otpForm}>
-        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6">
+        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6" autoComplete="off">
           <FormField
             control={otpForm.control}
             name="otp"
@@ -123,7 +122,7 @@ export function LoginForm() {
                     maxLength={6}
                     {...field}
                     autoComplete="one-time-code"
-                    pattern="d{6}"
+                    pattern="\\d{6}"
                     inputMode="numeric"
                   >
                     <InputOTPGroup>
