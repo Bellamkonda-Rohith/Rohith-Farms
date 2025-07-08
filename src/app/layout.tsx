@@ -1,13 +1,57 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { cn } from "@/lib/utils";
+
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+});
+
+const APP_NAME = "Rohith Farms";
+const APP_DESCRIPTION = "Premier gamefowl breeding farm specializing in world-class bloodlines. Discover champions bred for excellence and heritage.";
+const APP_URL = "https://your-domain.com"; // TODO: Replace with your actual domain
 
 export const metadata: Metadata = {
-  title: "Rohith Farms Online",
-  description: "Premier gamefowl breeding farm.",
+  title: {
+    default: `${APP_NAME} - Breeding Excellence`,
+    template: `%s | ${APP_NAME}`,
+  },
+  description: APP_DESCRIPTION,
+  applicationName: APP_NAME,
+  keywords: ["gamefowl", "breeding", "rooster", "farm", "chicks", "fighters", "bloodlines"],
+  authors: [{ name: APP_NAME }],
+  creator: APP_NAME,
+  publisher: APP_NAME,
+  metadataBase: new URL(APP_URL),
+  openGraph: {
+    type: "website",
+    url: APP_URL,
+    title: `${APP_NAME} - Breeding Excellence`,
+    description: APP_DESCRIPTION,
+    siteName: APP_NAME,
+    images: [
+      {
+        url: `${APP_URL}/og-image.jpg`, // TODO: Create and add an OG image
+        width: 1200,
+        height: 630,
+        alt: `${APP_NAME} Hero Image`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${APP_NAME} - Breeding Excellence`,
+    description: APP_DESCRIPTION,
+    images: [`${APP_URL}/og-image.jpg`], // TODO: Create and add an OG image
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1E1E2F", // Matches dark mode background
 };
 
 export default function RootLayout({
@@ -17,12 +61,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased min-h-screen flex flex-col">
+      <body className={cn("font-sans antialiased min-h-screen flex flex-col bg-background", inter.className)}>
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />

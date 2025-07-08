@@ -1,9 +1,11 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -20,38 +22,49 @@ type BirdCardProps = {
 
 export function BirdCard({ bird }: BirdCardProps) {
   return (
-    <Card className="flex flex-col h-full overflow-hidden transition-shadow duration-300 hover:shadow-xl group">
-      <CardHeader className="p-0 relative">
-        <Link href={`/birds/${bird.id}`} className="block">
-          <Image
-            src={bird.imageUrl}
-            alt={bird.name}
-            width={600}
-            height={400}
-            className="w-full h-auto aspect-[3/2] object-cover transition-transform duration-300 group-hover:scale-105"
-            data-ai-hint="gamefowl rooster"
-          />
-        </Link>
-        <Badge
-          className={cn(
-            "absolute top-3 right-3 text-sm",
-            bird.isAvailable ? "bg-green-600" : "bg-red-600"
-          )}
-        >
-          {bird.isAvailable ? "Available" : "Sold"}
-        </Badge>
-      </CardHeader>
-      <CardContent className="flex-grow p-6">
-        <CardTitle className="font-headline text-2xl text-primary">{bird.bloodline}</CardTitle>
-        <CardDescription className="mt-2 text-base text-muted-foreground">{bird.traits}</CardDescription>
-      </CardContent>
-      <CardFooter className="p-6 pt-0">
-        <Button asChild className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href={`/birds/${bird.id}`}>
-            <Eye className="mr-2 h-4 w-4" /> View Details
+    <motion.div
+      whileHover={{ y: -8, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="h-full"
+    >
+      <Card className="flex flex-col h-full overflow-hidden rounded-2xl bg-background/50 border-2 border-transparent hover:border-primary transition-colors duration-300 shadow-lg">
+        <CardHeader className="p-0 relative">
+          <Link href={`/birds/${bird.id}`} className="block overflow-hidden">
+            <motion.div
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            >
+                <Image
+                    src={bird.imageUrl}
+                    alt={bird.name}
+                    width={600}
+                    height={400}
+                    className="w-full h-auto aspect-[4/3] object-cover"
+                    data-ai-hint="gamefowl rooster"
+                />
+            </motion.div>
           </Link>
-        </Button>
-      </CardFooter>
-    </Card>
+          <Badge
+            className={cn(
+              "absolute top-4 right-4 text-sm font-bold rounded-full border-none",
+              bird.isAvailable ? "bg-green-500 text-white" : "bg-red-600 text-white"
+            )}
+          >
+            {bird.isAvailable ? "Available" : "Sold"}
+          </Badge>
+        </CardHeader>
+        <CardContent className="flex-grow p-6">
+          <CardTitle className="text-2xl font-bold text-primary">{bird.bloodline}</CardTitle>
+          <p className="mt-2 text-base text-muted-foreground line-clamp-2">{bird.traits}</p>
+        </CardContent>
+        <CardFooter className="p-6 pt-0">
+          <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full text-base">
+            <Link href={`/birds/${bird.id}`}>
+              <Eye className="mr-2 h-4 w-4" /> View Details
+            </Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 }
