@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,7 +40,7 @@ export function LoginForm() {
   });
 
   useEffect(() => {
-    if (!window.recaptchaVerifier) {
+    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
         "size": "invisible",
         "callback": () => { /* reCAPTCHA solved */ }
@@ -50,9 +51,9 @@ export function LoginForm() {
   // Reset OTP form when it's about to be shown
   useEffect(() => {
     if (confirmationResult) {
-      otpForm.reset();
+      otpForm.reset({ otp: "" });
     }
-  }, [confirmationResult, otpForm]);
+  }, [confirmationResult]);
 
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
@@ -98,6 +99,7 @@ export function LoginForm() {
     } catch (error: any) {
       console.error("Error verifying OTP:", error);
       toast({ variant: "destructive", title: "Invalid OTP", description: "The OTP you entered is incorrect. Please try again." });
+      otpForm.reset({ otp: "" });
     } finally {
       setIsSubmitting(false);
     }
@@ -106,7 +108,7 @@ export function LoginForm() {
   if (confirmationResult) {
     return (
       <Form {...otpForm}>
-        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6">
+        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6" autoComplete="off">
           <FormField
             control={otpForm.control}
             name="otp"
