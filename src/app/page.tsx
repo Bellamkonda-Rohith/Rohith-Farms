@@ -15,7 +15,7 @@ export default async function Home() {
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center text-center text-white">
         <Image
-          src="https://placehold.co/1600x900.png"
+          src="https://firebasestorage.googleapis.com/v0/b/rohith-farms.firebasestorage.app/o/dc91bca7-2378-4d11-8798-94d5107e6b23.jpg?alt=media"
           alt="Rohith Farms Banner"
           layout="fill"
           objectFit="cover"
