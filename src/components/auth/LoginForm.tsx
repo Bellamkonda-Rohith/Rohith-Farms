@@ -70,6 +70,9 @@ export function LoginForm() {
       if (error.code === 'auth/captcha-check-failed') {
         title = "Configuration Error: Domain Not Authorized";
         description = `This is a Firebase security setting. Your app's domain must be authorized. Go to your Firebase Console -> Authentication -> Settings -> Authorized domains, and add the domain from your browser's address bar: ${window.location.hostname}`;
+      } else if (error.code === 'auth/too-many-requests') {
+        title = "Too Many Attempts";
+        description = "You have requested an OTP too many times. Please wait a few minutes before trying again.";
       } else {
          description = `Please check the phone number or try again. Ensure it's added as a test number in your Firebase project. Error code: ${error.code || 'UNKNOWN'}`;
       }
