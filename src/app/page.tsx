@@ -57,7 +57,7 @@ export default function Home() {
           }}
         >
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/rohith-farms.firebasestorage.app/o/Stort%20section.jpg?alt=media&token=29ccab65-6a62-4bf2-bae6-02d3bf02258c"
+            src="https://firebasestorage.googleapis.com/v0/b/rohith-farms.firebasestorage.app/o/hero%20section.jpg?alt=media&token=1474a0c4-6d4d-4e67-9486-3d853068d24a"
             alt="Rohith Farms Banner"
             fill
             className="object-cover object-center brightness-[0.4]"
