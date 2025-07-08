@@ -26,10 +26,9 @@ type BirdFormValues = z.infer<typeof birdSchema>;
 
 const defaultValues: Partial<BirdFormValues> = {
   isAvailable: true,
-  imageUrl: 'https://placehold.co/600x400.png',
   videoUrl: '',
-  father: { name: '', imageUrl: 'https://placehold.co/400x300.png' },
-  mother: { name: '', imageUrl: 'https://placehold.co/400x300.png' },
+  father: { name: '' },
+  mother: { name: '' },
 };
 
 export function AddBirdForm() {
@@ -44,7 +43,27 @@ export function AddBirdForm() {
 
   async function onSubmit(data: BirdFormValues) {
     setIsSubmitting(true);
-    const result = await addBird(data);
+    const formData = new FormData();
+
+    formData.append('name', data.name);
+    formData.append('bloodline', data.bloodline);
+    formData.append('traits', data.traits);
+    formData.append('isAvailable', String(data.isAvailable));
+    formData.append('videoUrl', data.videoUrl || '');
+
+    if (data.imageUrl?.length > 0) {
+      formData.append('image', data.imageUrl[0]);
+    }
+    if (data.father.imageUrl?.length > 0) {
+        formData.append('fatherName', data.father.name);
+        formData.append('fatherImage', data.father.imageUrl[0]);
+    }
+    if (data.mother.imageUrl?.length > 0) {
+        formData.append('motherName', data.mother.name);
+        formData.append('motherImage', data.mother.imageUrl[0]);
+    }
+
+    const result = await addBird(formData);
     setIsSubmitting(false);
 
     if (result.success) {
@@ -111,13 +130,18 @@ export function AddBirdForm() {
                 <FormField
                     control={form.control}
                     name="imageUrl"
-                    render={({ field }) => (
+                    render={({ field: { onChange, ...props } }) => (
                         <FormItem>
-                        <FormLabel>Image URL</FormLabel>
+                        <FormLabel>Bird Image</FormLabel>
                         <FormControl>
-                            <Input placeholder="https://..." {...field} />
+                            <Input 
+                                type="file"
+                                accept="image/png, image/jpeg, image/webp"
+                                onChange={(e) => onChange(e.target.files)} 
+                                {...props} 
+                            />
                         </FormControl>
-                        <FormDescription>URL for the main bird image. Use a placeholder if needed.</FormDescription>
+                        <FormDescription>Upload the main bird image.</FormDescription>
                         <FormMessage />
                         </FormItem>
                     )}
@@ -173,11 +197,16 @@ export function AddBirdForm() {
                     <FormField
                         control={form.control}
                         name="father.imageUrl"
-                        render={({ field }) => (
+                        render={({ field: { onChange, ...props } }) => (
                             <FormItem>
-                            <FormLabel>Father's Image URL</FormLabel>
+                            <FormLabel>Father's Image</FormLabel>
                             <FormControl>
-                                <Input placeholder="https://..." {...field} />
+                                <Input 
+                                    type="file"
+                                    accept="image/png, image/jpeg, image/webp"
+                                    onChange={(e) => onChange(e.target.files)} 
+                                    {...props} 
+                                />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -203,11 +232,16 @@ export function AddBirdForm() {
                     <FormField
                         control={form.control}
                         name="mother.imageUrl"
-                        render={({ field }) => (
+                        render={({ field: { onChange, ...props } }) => (
                             <FormItem>
-                            <FormLabel>Mother's Image URL</FormLabel>
+                            <FormLabel>Mother's Image</FormLabel>
                             <FormControl>
-                                <Input placeholder="https://..." {...field} />
+                                 <Input 
+                                    type="file"
+                                    accept="image/png, image/jpeg, image/webp"
+                                    onChange={(e) => onChange(e.target.files)} 
+                                    {...props} 
+                                />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
