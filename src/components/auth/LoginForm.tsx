@@ -10,7 +10,7 @@ import { auth } from "@/lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -102,10 +102,14 @@ export function LoginForm() {
             control={otpForm.control}
             name="otp"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Enter OTP</FormLabel>
+              <FormItem className="flex flex-col items-center justify-center text-center">
+                <FormLabel className="text-lg font-semibold">Enter Your Code</FormLabel>
                 <FormControl>
-                  <InputOTP maxLength={6} {...field}>
+                  <InputOTP
+                    maxLength={6}
+                    {...field}
+                    autoComplete="one-time-code"
+                  >
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
                       <InputOTPSlot index={1} />
@@ -116,13 +120,16 @@ export function LoginForm() {
                     </InputOTPGroup>
                   </InputOTP>
                 </FormControl>
+                <FormDescription>
+                  Please enter the 6-digit code sent to your phone.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Verify OTP
+            Confirm & Login
           </Button>
         </form>
       </Form>
