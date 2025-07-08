@@ -67,7 +67,7 @@ export default function Home() {
         </motion.div>
         <div className="relative z-10 p-4 max-w-4xl">
           <motion.h1 
-            className="text-5xl md:text-7xl lg:text-8xl font-bold font-headline tracking-tighter [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold font-headline tracking-tighter text-white [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]"
             variants={FADE_DOWN_ANIMATION_VARIANTS}
           >
             Rohith Farms
@@ -127,7 +127,7 @@ export default function Home() {
                 width={800}
                 height={800}
                 className="w-full h-auto aspect-square object-cover"
-                data-ai-hint="farm landscape"
+                data-ai-hint="rustic farm"
               />
             </motion.div>
           </div>
