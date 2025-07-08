@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 
 const phoneSchema = z.object({
-  phone: z.string().regex(/^\+91\d{10}$/, "Please enter a valid 10-digit Indian number, including +91."),
+  phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
 });
 
 const otpSchema = z.object({
@@ -30,7 +30,7 @@ export function LoginForm() {
 
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
     resolver: zodResolver(phoneSchema),
-    defaultValues: { phone: "+91" },
+    defaultValues: { phone: "" },
   });
 
   const otpForm = useForm<z.infer<typeof otpSchema>>({
@@ -54,9 +54,10 @@ export function LoginForm() {
     setIsSubmitting(true);
     try {
       const verifier = window.recaptchaVerifier;
-      const result = await signInWithPhoneNumber(auth, values.phone, verifier);
+      const phoneNumber = `+91${values.phone}`;
+      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
       setConfirmationResult(result);
-      toast({ title: "OTP Sent", description: `An OTP has been sent to ${values.phone}.` });
+      toast({ title: "OTP Sent", description: `An OTP has been sent to ${phoneNumber}.` });
     } catch (error: any) {
       console.error("Error sending OTP:", error);
       toast({ 
@@ -118,9 +119,19 @@ export function LoginForm() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone Number</FormLabel>
+              <FormLabel>Mobile Number</FormLabel>
               <FormControl>
-                <Input placeholder="+919876543210" {...field} />
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <span className="text-muted-foreground sm:text-sm">+91</span>
+                  </div>
+                  <Input 
+                    type="tel"
+                    placeholder="9876543210" 
+                    className="pl-12"
+                    {...field} 
+                  />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
