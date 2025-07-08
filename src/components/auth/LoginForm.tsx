@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,6 +47,13 @@ export function LoginForm() {
     }
   }, []);
 
+  // Reset OTP form when it's about to be shown
+  useEffect(() => {
+    if (confirmationResult) {
+      otpForm.reset();
+    }
+  }, [confirmationResult, otpForm]);
+
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
     try {
@@ -63,7 +69,7 @@ export function LoginForm() {
 
       if (error.code === 'auth/captcha-check-failed') {
         title = "Configuration Error: Domain Not Authorized";
-        description = "This is a Firebase security setting. Your app's domain must be authorized. Go to your Firebase Console -> Authentication -> Settings -> Authorized domains, and add the domain from your browser's address bar.";
+        description = `This is a Firebase security setting. Your app's domain must be authorized. Go to your Firebase Console -> Authentication -> Settings -> Authorized domains, and add the domain from your browser's address bar: ${window.location.hostname}`;
       } else {
          description = `Please check the phone number or try again. Ensure it's added as a test number in your Firebase project. Error code: ${error.code || 'UNKNOWN'}`;
       }
