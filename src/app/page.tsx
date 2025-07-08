@@ -2,47 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BirdCard } from "@/components/BirdCard";
-import type { Bird } from "@/lib/types";
 import { ArrowRight } from "lucide-react";
+import { getBirds } from "@/lib/birds";
 
-// Mock data, to be replaced with Firebase data
-const featuredBirds: Bird[] = [
-  {
-    id: "1",
-    name: "Sweater",
-    bloodline: "Sweater",
-    traits: "High-flying, fast, and powerful.",
-    isAvailable: true,
-    imageUrl: "https://placehold.co/600x400.png",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    father: { name: "Senior Sweats", imageUrl: "https://placehold.co/300x200.png", videoUrl: "" },
-    mother: { name: "Golden Hen", imageUrl: "https://placehold.co/300x200.png", videoUrl: "" },
-  },
-  {
-    id: "2",
-    name: "Kelso",
-    bloodline: "Kelso",
-    traits: "Smart, agile, and a ground fighter.",
-    isAvailable: true,
-    imageUrl: "https://placehold.co/600x400.png",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    father: { name: "General Kelso", imageUrl: "https://placehold.co/300x200.png", videoUrl: "" },
-    mother: { name: "Red Lady", imageUrl: "https://placehold.co/300x200.png", videoUrl: "" },
-  },
-  {
-    id: "3",
-    name: "Roundhead",
-    bloodline: "Lacy Roundhead",
-    traits: "Aggressive with deep-cutting ability.",
-    isAvailable: false,
-    imageUrl: "https://placehold.co/600x400.png",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    father: { name: "Lacy Senior", imageUrl: "https://placehold.co/300x200.png", videoUrl: "" },
-    mother: { name: "Pure Roundhead Hen", imageUrl: "https://placehold.co/300x200.png", videoUrl: "" },
-  },
-];
+export default async function Home() {
+  const allBirds = await getBirds();
+  // We'll feature the first 3 available birds
+  const featuredBirds = allBirds.filter(b => b.isAvailable).slice(0, 3);
 
-export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -104,16 +71,24 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-headline font-bold text-primary">Featured Gamefowl</h2>
             <p className="mt-2 text-lg text-muted-foreground">A glimpse of our finest breeds.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredBirds.map((bird) => (
-              <BirdCard key={bird.id} bird={bird} />
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <Button asChild variant="outline" size="lg">
-              <Link href="/birds">See All Birds</Link>
-            </Button>
-          </div>
+          {featuredBirds.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {featuredBirds.map((bird) => (
+                  <BirdCard key={bird.id} bird={bird} />
+                ))}
+              </div>
+              <div className="text-center mt-12">
+                <Button asChild variant="outline" size="lg">
+                  <Link href="/birds">See All Birds</Link>
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-10">
+              <p className="text-muted-foreground text-lg">No featured birds at the moment.</p>
+            </div>
+          )}
         </div>
       </section>
     </div>

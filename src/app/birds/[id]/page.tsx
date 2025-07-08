@@ -1,53 +1,28 @@
 import Image from "next/image";
 import type { Bird } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { WhatsappButton } from "@/components/WhatsappButton";
 import { cn } from "@/lib/utils";
 import { Dna, ShieldCheck, Video } from "lucide-react";
-
-// Mock data store
-const birdsData: Bird[] = [
-    { id: "1", name: "Sweater", bloodline: "Sweater", traits: "A high-flying, fast, and powerful fighter known for its relentless attacks and agility in the air. Exceptional stamina and a winning spirit.", isAvailable: true, imageUrl: "https://placehold.co/1200x800.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
-      father: { name: "Senior Sweats", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-      mother: { name: "Golden Hen", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-    },
-    { id: "2", name: "Kelso", bloodline: "Kelso", traits: "A smart and agile ground fighter, famous for its side-stepping and weaving techniques. Kelsos are known for their cunning and ability to out-maneuver opponents.", isAvailable: true, imageUrl: "https://placehold.co/1200x800.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
-      father: { name: "General Kelso", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-      mother: { name: "Red Lady", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-    },
-    { id: "3", name: "Roundhead", bloodline: "Lacy Roundhead", traits: "An aggressive bird with a reputation for deep-cutting ability. It is powerful and known for its timing and precision striking.", isAvailable: false, imageUrl: "https://placehold.co/1200x800.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
-      father: { name: "Lacy Senior", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-      mother: { name: "Pure Roundhead Hen", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-    },
-    { id: "4", name: "Hatch", bloodline: "Leiper Hatch", traits: "Characterized by its powerful leg kicks and exceptional stamina. A tough and durable fighter that excels in long battles.", isAvailable: true, imageUrl: "https://placehold.co/1200x800.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
-      father: { name: "Leiper King", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-      mother: { name: "Hatch Henny", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-    },
-    { id: "5", name: "Claret", bloodline: "Joe Goode Claret", traits: "Extremely fast and shifty, a great cutter that uses speed to its advantage. Known for its evasiveness and accurate striking.", isAvailable: true, imageUrl: "https://placehold.co/1200x800.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
-      father: { name: "Goode's Best", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-      mother: { name: "Claret Queen", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-    },
-    { id: "6", name: "Whitehackle", bloodline: "Morgan Whitehackle", traits: "A strong and intelligent bird known for its superb timing and powerful blows. It is a strategic fighter that waits for the perfect moment to strike.", isAvailable: false, imageUrl: "https://placehold.co/1200x800.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
-      father: { name: "Morgan's Pride", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-      mother: { name: "White Hen", imageUrl: "https://placehold.co/400x300.png", videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4" },
-    },
-];
-
-// Mock data fetching function
-async function getBird(id: string): Promise<Bird | undefined> {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return birdsData.find(bird => bird.id === id);
-}
+import { getBird } from "@/lib/birds";
 
 export default async function BirdDetailPage({ params }: { params: { id: string } }) {
   const bird = await getBird(params.id);
 
   if (!bird) {
-    return <div className="container mx-auto text-center py-20">Bird not found.</div>;
+    return (
+      <div className="container mx-auto text-center py-20">
+        <h2 className="text-2xl font-bold">Bird Not Found</h2>
+        <p className="text-muted-foreground mt-2">
+          The bird you are looking for does not exist or may have been moved.
+        </p>
+        <p className="text-muted-foreground text-sm mt-1">
+            (If you are the admin, please check your Firebase configuration and data.)
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -112,29 +87,31 @@ export default async function BirdDetailPage({ params }: { params: { id: string 
         )}
 
         {/* Pedigree Section */}
-        <div className="mt-16">
-          <h2 className="text-3xl font-headline text-center mb-8 flex items-center justify-center gap-3"><Dna className="text-primary"/> Pedigree</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="font-headline text-2xl">Father</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Image src={bird.father.imageUrl} alt={bird.father.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="rooster male"/>
-                <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.father.name}</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="font-headline text-2xl">Mother</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Image src={bird.mother.imageUrl} alt={bird.mother.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="hen female"/>
-                <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.mother.name}</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        {bird.father && bird.mother && (
+            <div className="mt-16">
+                <h2 className="text-3xl font-headline text-center mb-8 flex items-center justify-center gap-3"><Dna className="text-primary"/> Pedigree</h2>
+                <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <Card className="text-center">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl">Father</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Image src={bird.father.imageUrl} alt={bird.father.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="rooster male"/>
+                        <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.father.name}</p>
+                    </CardContent>
+                    </Card>
+                    <Card className="text-center">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl">Mother</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Image src={bird.mother.imageUrl} alt={bird.mother.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="hen female"/>
+                        <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.mother.name}</p>
+                    </CardContent>
+                    </Card>
+                </div>
+            </div>
+        )}
 
       </div>
     </div>
