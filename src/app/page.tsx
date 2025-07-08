@@ -6,11 +6,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { BirdCard } from "@/components/BirdCard";
-import { ArrowRight, ChevronDown, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { getBirds } from "@/lib/birds";
 import { useEffect, useState } from "react";
 import type { Bird } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 
 export default function Home() {
   const [featuredBirds, setFeaturedBirds] = useState<Bird[]>([]);
@@ -34,7 +35,7 @@ export default function Home() {
 
   return (
     <motion.div 
-      className="flex flex-col"
+      className="flex flex-col bg-background"
       initial="hidden"
       animate="show"
       viewport={{ once: true }}
@@ -48,7 +49,7 @@ export default function Home() {
       }}
     >
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] md:min-h-screen flex items-center justify-center text-center text-white overflow-hidden">
+      <section className="relative min-h-[90vh] md:min-h-screen flex items-center justify-center text-center text-primary-foreground overflow-hidden">
         <motion.div
           className="absolute inset-0 z-0"
           variants={{
@@ -59,29 +60,27 @@ export default function Home() {
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/rohith-farms.firebasestorage.app/o/dc91bca7-2378-4d11-8798-94d5107e6b23.jpg?alt=media"
             alt="Rohith Farms Banner"
-            layout="fill"
-            objectFit="cover"
-            objectPosition="center"
-            className="brightness-[0.4]"
+            fill
+            className="object-cover object-top brightness-[0.4]"
             priority
             data-ai-hint="gamefowl farm"
           />
         </motion.div>
         <div className="relative z-10 p-4 max-w-4xl">
           <motion.h1 
-            className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold font-headline tracking-tighter"
             variants={FADE_DOWN_ANIMATION_VARIANTS}
           >
             Rohith Farms
           </motion.h1>
           <motion.p 
-            className="mt-4 text-lg md:text-xl text-foreground/80"
+            className="mt-4 text-lg md:text-xl text-primary-foreground/80"
             variants={FADE_DOWN_ANIMATION_VARIANTS}
           >
             Breeding World-Class Champions, One Generation at a Time.
           </motion.p>
           <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
-            <Button asChild size="lg" className="mt-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full text-base">
+            <Button asChild size="lg" className="mt-8 bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-full text-base">
               <Link href="/birds">
                 Explore The Lineage <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
@@ -108,7 +107,7 @@ export default function Home() {
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.8 }}
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-primary">Our Story</h2>
+              <h2 className="text-4xl md:text-5xl font-bold font-headline text-primary">Our Story</h2>
               <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
                 Welcome to Rohith Farms, where passion for gamefowl heritage meets modern breeding excellence. Founded on principles of integrity and dedication, our farm is committed to preserving and enhancing the finest bloodlines. We believe in raising strong, healthy, and high-quality birds that embody the spirit of their lineage.
               </p>
@@ -137,7 +136,7 @@ export default function Home() {
       </section>
       
       {/* Featured Gamefowl Section */}
-      <section className="py-24 lg:py-32 bg-card">
+      <section className="py-24 lg:py-32 bg-secondary">
         <div className="container mx-auto px-4">
           <motion.div 
             className="text-center mb-16"
@@ -146,21 +145,21 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground">Featured Gamefowl</h2>
+            <h2 className="text-4xl md:text-5xl font-bold font-headline text-primary">Featured Gamefowl</h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">A glimpse into the quality and power of our current champions available for sale.</p>
           </motion.div>
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.from({ length: 3 }).map((_, i) => (
-                 <Card key={i} className="flex flex-col h-full overflow-hidden rounded-2xl">
-                    <Skeleton className="w-full aspect-[4/3] rounded-b-none" />
+                 <Card key={i} className="flex flex-col h-full overflow-hidden rounded-2xl bg-card border-none shadow-lg">
+                    <Skeleton className="w-full aspect-[4/3] rounded-b-none bg-muted/80" />
                     <div className="p-6 flex-grow">
-                      <Skeleton className="h-8 w-3/4 mb-4" />
-                      <Skeleton className="h-5 w-full" />
-                      <Skeleton className="h-5 w-5/6 mt-2" />
+                      <Skeleton className="h-8 w-3/4 mb-4 bg-muted/80" />
+                      <Skeleton className="h-5 w-full bg-muted/80" />
+                      <Skeleton className="h-5 w-5/6 mt-2 bg-muted/80" />
                     </div>
                     <div className="p-6 pt-0">
-                      <Skeleton className="h-12 w-full rounded-full" />
+                      <Skeleton className="h-12 w-full rounded-full bg-muted/80" />
                     </div>
                  </Card>
               ))}
@@ -187,7 +186,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <Button asChild variant="outline" size="lg" className="rounded-full text-base">
+                <Button asChild variant="outline" size="lg" className="rounded-full text-base border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                   <Link href="/birds">See All Birds</Link>
                 </Button>
               </motion.div>
