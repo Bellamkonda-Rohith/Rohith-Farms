@@ -1,7 +1,7 @@
 export type ParentInfo = {
   name: string;
   imageUrl: string;
-  videoUrl: string;
+  videoUrl?: string;
 };
 
 export type Bird = {
@@ -11,7 +11,7 @@ export type Bird = {
   traits: string;
   isAvailable: boolean;
   imageUrl: string;
-  videoUrl: string; // YouTube embed URL
+  videoUrl?: string; // YouTube embed URL
   father: ParentInfo;
   mother: ParentInfo;
 };
