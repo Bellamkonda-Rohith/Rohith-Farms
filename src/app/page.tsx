@@ -91,12 +91,14 @@ export default function Home() {
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           className="absolute bottom-10"
         >
-          <ChevronDown className="h-8 w-8 text-white/50" />
+          <a href="#about" aria-label="Scroll to about section">
+            <ChevronDown className="h-8 w-8 text-white/50" />
+          </a>
         </motion.div>
       </section>
 
       {/* About Us Section */}
-      <section className="py-24 lg:py-32 bg-background">
+      <section id="about" className="py-24 lg:py-32 bg-background">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-24 items-center">
             <motion.div 
@@ -122,12 +124,12 @@ export default function Home() {
               transition={{ duration: 0.8 }}
             >
               <Image
-                src="https://placehold.co/800x800.png"
-                alt="Our Farm"
+                src="https://firebasestorage.googleapis.com/v0/b/rohith-farms.firebasestorage.app/o/Stort%20section.jpg?alt=media&token=29ccab65-6a62-4bf2-bae6-02d3bf02258c"
+                alt="A majestic rooster at Rohith Farms"
                 width={800}
                 height={800}
                 className="w-full h-auto aspect-square object-cover"
-                data-ai-hint="gamefowl rooster cinematic"
+                data-ai-hint="gamefowl rooster"
               />
             </motion.div>
           </div>
