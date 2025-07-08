@@ -8,6 +8,20 @@ import { cn } from "@/lib/utils";
 import { Dna, ShieldCheck, Video } from "lucide-react";
 import { getBird } from "@/lib/birds";
 
+const VideoPlayer = ({ videoUrl }: { videoUrl: string }) => (
+  <div className="aspect-video w-full rounded-lg overflow-hidden shadow-xl mt-4">
+    <iframe
+      width="100%"
+      height="100%"
+      src={videoUrl}
+      title="YouTube video player"
+      frameBorder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+    ></iframe>
+  </div>
+);
+
 export default async function BirdDetailPage({ params }: { params: { id: string } }) {
   const bird = await getBird(params.id);
 
@@ -72,16 +86,8 @@ export default async function BirdDetailPage({ params }: { params: { id: string 
         {bird.videoUrl && (
           <div className="mt-16">
             <h2 className="text-3xl font-headline text-center mb-8 flex items-center justify-center gap-3"><Video className="text-primary"/> Fighting Video</h2>
-            <div className="aspect-video max-w-4xl mx-auto rounded-lg overflow-hidden shadow-2xl">
-              <iframe
-                width="100%"
-                height="100%"
-                src={bird.videoUrl}
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+            <div className="max-w-4xl mx-auto">
+              <VideoPlayer videoUrl={bird.videoUrl} />
             </div>
           </div>
         )}
@@ -92,22 +98,24 @@ export default async function BirdDetailPage({ params }: { params: { id: string 
                 <h2 className="text-3xl font-headline text-center mb-8 flex items-center justify-center gap-3"><Dna className="text-primary"/> Pedigree</h2>
                 <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                     <Card className="text-center">
-                    <CardHeader>
-                        <CardTitle className="font-headline text-2xl">Father</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Image src={bird.father.imageUrl} alt={bird.father.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="rooster male"/>
-                        <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.father.name}</p>
-                    </CardContent>
+                      <CardHeader>
+                          <CardTitle className="font-headline text-2xl">Father</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                          <Image src={bird.father.imageUrl} alt={bird.father.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="rooster male"/>
+                          <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.father.name}</p>
+                          {bird.father.videoUrl && <VideoPlayer videoUrl={bird.father.videoUrl} />}
+                      </CardContent>
                     </Card>
                     <Card className="text-center">
-                    <CardHeader>
-                        <CardTitle className="font-headline text-2xl">Mother</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Image src={bird.mother.imageUrl} alt={bird.mother.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="hen female"/>
-                        <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.mother.name}</p>
-                    </CardContent>
+                      <CardHeader>
+                          <CardTitle className="font-headline text-2xl">Mother</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                          <Image src={bird.mother.imageUrl} alt={bird.mother.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="hen female"/>
+                          <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.mother.name}</p>
+                          {bird.mother.videoUrl && <VideoPlayer videoUrl={bird.mother.videoUrl} />}
+                      </CardContent>
                     </Card>
                 </div>
             </div>

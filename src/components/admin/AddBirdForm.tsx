@@ -28,8 +28,8 @@ type BirdFormValues = z.infer<typeof birdSchema>;
 const defaultValues: Partial<BirdFormValues> = {
   isAvailable: true,
   videoUrl: '',
-  father: { name: '' },
-  mother: { name: '' },
+  father: { name: '', videoUrl: '' },
+  mother: { name: '', videoUrl: '' },
 };
 
 export function AddBirdForm() {
@@ -51,16 +51,18 @@ export function AddBirdForm() {
     formData.append('traits', data.traits);
     formData.append('isAvailable', String(data.isAvailable));
     formData.append('videoUrl', data.videoUrl || '');
+    formData.append('fatherName', data.father.name);
+    formData.append('fatherVideoUrl', data.father.videoUrl || '');
+    formData.append('motherName', data.mother.name);
+    formData.append('motherVideoUrl', data.mother.videoUrl || '');
 
     if (data.imageUrl?.length > 0) {
       formData.append('image', data.imageUrl[0]);
     }
     if (data.father.imageUrl?.length > 0) {
-        formData.append('fatherName', data.father.name);
         formData.append('fatherImage', data.father.imageUrl[0]);
     }
     if (data.mother.imageUrl?.length > 0) {
-        formData.append('motherName', data.mother.name);
         formData.append('motherImage', data.mother.imageUrl[0]);
     }
 
@@ -217,6 +219,19 @@ export function AddBirdForm() {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="father.videoUrl"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Father's Video URL (Optional)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="https://www.youtube.com/embed/..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
                 {/* Mother */}
                 <div className="space-y-4 rounded-lg border p-4">
@@ -249,6 +264,19 @@ export function AddBirdForm() {
                                     name={name}
                                     ref={ref}
                                 />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="mother.videoUrl"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Mother's Video URL (Optional)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="https://www.youtube.com/embed/..." {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>

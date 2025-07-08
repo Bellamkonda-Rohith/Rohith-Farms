@@ -16,6 +16,7 @@ const imageFileListSchema = z
 const parentSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   imageUrl: imageFileListSchema,
+  videoUrl: z.string().url('Video URL must be a valid YouTube embed URL').optional().or(z.literal('')),
 });
 
 export const birdSchema = z.object({
@@ -24,7 +25,7 @@ export const birdSchema = z.object({
   traits: z.string().min(1, 'Traits are required'),
   isAvailable: z.boolean().default(true),
   imageUrl: imageFileListSchema,
-  videoUrl: z.string().url('Video URL must be a valid URL').optional().or(z.literal('')),
+  videoUrl: z.string().url('Video URL must be a valid YouTube embed URL').optional().or(z.literal('')),
   father: parentSchema,
   mother: parentSchema,
 });

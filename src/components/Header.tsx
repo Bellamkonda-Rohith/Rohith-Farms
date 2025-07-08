@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Menu, Feather } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -15,9 +16,9 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname();
+  const { user, loading } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSheetOpen, setSheetOpen] = useState(false);
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,7 +29,6 @@ export default function Header() {
   }, []);
   
   const closeSheet = () => setSheetOpen(false);
-
 
   const renderNavLinks = (isMobile = false) => (
     navLinks.map((link) => (
@@ -50,6 +50,20 @@ export default function Header() {
     ))
   );
 
+  const renderAdminLink = (isMobile = false) => {
+    if (loading) {
+      return <Button variant="outline" className="rounded-full font-bold ml-2" disabled>...</Button>
+    }
+    const href = user ? "/admin" : "/login";
+    const label = user ? "Admin" : "Login";
+
+    return (
+       <Button variant="outline" asChild className={cn("rounded-full font-bold", isMobile ? "w-full justify-start text-lg py-6 mt-4" : "ml-2")}>
+          <Link href={href} onClick={closeSheet}>{label}</Link>
+       </Button>
+    );
+  }
+
   return (
     <header className={cn(
       "sticky top-0 z-50 w-full transition-all duration-300",
@@ -64,9 +78,7 @@ export default function Header() {
         </Link>
         <nav className="hidden md:flex items-center gap-2">
           {renderNavLinks()}
-          <Button variant="outline" asChild className="rounded-full font-bold ml-2">
-            <Link href="/admin">Admin</Link>
-          </Button>
+          {renderAdminLink()}
         </nav>
         <div className="md:hidden">
           <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
@@ -85,9 +97,7 @@ export default function Header() {
               </div>
               <nav className="flex flex-col gap-4">
                 {renderNavLinks(true)}
-                 <Button variant="outline" asChild className="w-full justify-start text-lg py-6 mt-4">
-                    <Link href="/admin" onClick={closeSheet}>Admin</Link>
-                 </Button>
+                {renderAdminLink(true)}
               </nav>
             </SheetContent>
           </Sheet>

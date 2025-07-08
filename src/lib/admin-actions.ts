@@ -23,7 +23,9 @@ export async function addBird(formData: FormData) {
         isAvailable: formData.get('isAvailable') === 'true',
         videoUrl: formData.get('videoUrl') as string || '',
         fatherName: formData.get('fatherName') as string,
+        fatherVideoUrl: formData.get('fatherVideoUrl') as string || '',
         motherName: formData.get('motherName') as string,
+        motherVideoUrl: formData.get('motherVideoUrl') as string || '',
     }
 
     if (!birdDataRequest.name || !birdDataRequest.bloodline || !birdDataRequest.fatherName || !birdDataRequest.motherName) {
@@ -37,10 +39,22 @@ export async function addBird(formData: FormData) {
     ]);
 
     const birdData: Omit<Bird, 'id'> = {
-        ...birdDataRequest,
-        imageUrl,
-        father: { name: birdDataRequest.fatherName, imageUrl: fatherImageUrl },
-        mother: { name: birdDataRequest.motherName, imageUrl: motherImageUrl },
+      name: birdDataRequest.name,
+      bloodline: birdDataRequest.bloodline,
+      traits: birdDataRequest.traits,
+      isAvailable: birdDataRequest.isAvailable,
+      videoUrl: birdDataRequest.videoUrl,
+      imageUrl,
+      father: { 
+        name: birdDataRequest.fatherName, 
+        imageUrl: fatherImageUrl,
+        videoUrl: birdDataRequest.fatherVideoUrl,
+      },
+      mother: { 
+        name: birdDataRequest.motherName, 
+        imageUrl: motherImageUrl,
+        videoUrl: birdDataRequest.motherVideoUrl,
+      },
     };
 
     await addDoc(collection(db, 'birds'), birdData);

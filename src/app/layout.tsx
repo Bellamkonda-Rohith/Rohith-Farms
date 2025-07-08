@@ -63,6 +63,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={cn("font-sans antialiased min-h-screen flex flex-col bg-background", outfit.variable)}>
+        <div id="recaptcha-container"></div>
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />
