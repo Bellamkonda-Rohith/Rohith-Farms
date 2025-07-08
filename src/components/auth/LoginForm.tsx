@@ -40,9 +40,6 @@ export function LoginForm() {
   });
 
   useEffect(() => {
-    // This effect sets up the reCAPTCHA verifier, which is required for phone auth.
-    // It's invisible and attaches to the div with id 'recaptcha-container' in the root layout.
-    // We only create it once and attach it to the window object to avoid re-creations on re-renders.
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
         "size": "invisible",
@@ -61,15 +58,21 @@ export function LoginForm() {
       toast({ title: "OTP Sent", description: `An OTP has been sent to ${phoneNumber}.` });
     } catch (error: any) {
       console.error("Error sending OTP:", error);
-      let description = "Please check the phone number or try again. Ensure it's added as a test number in your Firebase project.";
+      let title = "Failed to Send OTP";
+      let description = "An unknown error occurred. Please try again.";
+
       if (error.code === 'auth/captcha-check-failed') {
-        description = "reCAPTCHA failed: Your website's domain is not authorized. Go to Firebase Console -> Authentication -> Settings -> Authorized domains and add the domain from your browser's address bar.";
+        title = "Configuration Error: Domain Not Authorized";
+        description = "This is a Firebase security setting. Your app's domain must be authorized. Go to your Firebase Console -> Authentication -> Settings -> Authorized domains, and add the domain from your browser's address bar.";
+      } else {
+         description = `Please check the phone number or try again. Ensure it's added as a test number in your Firebase project. Error code: ${error.code || 'UNKNOWN'}`;
       }
+
       toast({ 
         variant: "destructive", 
-        title: "Failed to send OTP", 
+        title: title, 
         description: description,
-        duration: 9000,
+        duration: 15000,
       });
     } finally {
       setIsSubmitting(false);
