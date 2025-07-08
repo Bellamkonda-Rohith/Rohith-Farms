@@ -122,7 +122,7 @@ export function LoginForm() {
                   <InputOTP
                     maxLength={6}
                     {...field}
-                    autoComplete="off"
+                    autoComplete="new-password"
                   >
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
