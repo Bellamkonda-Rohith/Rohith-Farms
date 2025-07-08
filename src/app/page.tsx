@@ -57,23 +57,23 @@ export default function Home() {
           }}
         >
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/rohith-farms.firebasestorage.app/o/dc91bca7-2378-4d11-8798-94d5107e6b23.jpg?alt=media"
+            src="https://firebasestorage.googleapis.com/v0/b/rohith-farms.firebasestorage.app/o/Stort%20section.jpg?alt=media&token=29ccab65-6a62-4bf2-bae6-02d3bf02258c"
             alt="Rohith Farms Banner"
             fill
-            className="object-cover object-top brightness-[0.4]"
+            className="object-cover object-center brightness-[0.4]"
             priority
-            data-ai-hint="gamefowl farm"
+            data-ai-hint="gamefowl farm landscape"
           />
         </motion.div>
         <div className="relative z-10 p-4 max-w-4xl">
           <motion.h1 
-            className="text-5xl md:text-7xl lg:text-8xl font-bold font-headline tracking-tighter text-white [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold font-headline tracking-tighter text-white [text-shadow:0_4px_12px_rgba(0,0,0,0.6)]"
             variants={FADE_DOWN_ANIMATION_VARIANTS}
           >
             Rohith Farms
           </motion.h1>
           <motion.p 
-            className="mt-4 text-lg md:text-xl text-white/80 [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]"
+            className="mt-4 text-lg md:text-xl text-white/90 [text-shadow:0_2px_8px_rgba(0,0,0,0.6)]"
             variants={FADE_DOWN_ANIMATION_VARIANTS}
           >
             Breeding World-Class Champions, One Generation at a Time.
@@ -127,7 +127,7 @@ export default function Home() {
                 width={800}
                 height={800}
                 className="w-full h-auto aspect-square object-cover"
-                data-ai-hint="rustic farm"
+                data-ai-hint="gamefowl portrait"
               />
             </motion.div>
           </div>
@@ -150,15 +150,15 @@ export default function Home() {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.from({ length: 3 }).map((_, i) => (
-                 <Card key={i} className="flex flex-col h-full overflow-hidden rounded-2xl bg-card border-none shadow-lg">
-                    <Skeleton className="w-full aspect-[4/3] rounded-b-none bg-muted/80" />
+                 <Card key={i} className="flex flex-col h-full overflow-hidden rounded-2xl">
+                    <Skeleton className="w-full aspect-[4/3] rounded-b-none" />
                     <div className="p-6 flex-grow">
-                      <Skeleton className="h-8 w-3/4 mb-4 bg-muted/80" />
-                      <Skeleton className="h-5 w-full bg-muted/80" />
-                      <Skeleton className="h-5 w-5/6 mt-2 bg-muted/80" />
+                      <Skeleton className="h-8 w-3/4 mb-4" />
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-5/6 mt-2" />
                     </div>
                     <div className="p-6 pt-0">
-                      <Skeleton className="h-12 w-full rounded-full bg-muted/80" />
+                      <Skeleton className="h-12 w-full rounded-full" />
                     </div>
                  </Card>
               ))}
