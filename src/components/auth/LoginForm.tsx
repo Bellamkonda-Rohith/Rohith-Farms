@@ -20,7 +20,7 @@ const phoneSchema = z.object({
 });
 
 const otpSchema = z.object({
-  otp: z.string().length(6, "OTP must be 6 digits."),
+  otpCode: z.string().length(6, "OTP must be 6 digits."),
 });
 
 export function LoginForm() {
@@ -36,7 +36,7 @@ export function LoginForm() {
 
   const otpForm = useForm<z.infer<typeof otpSchema>>({
     resolver: zodResolver(otpSchema),
-    defaultValues: { otp: "" },
+    defaultValues: { otpCode: "" },
   });
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function LoginForm() {
   useEffect(() => {
     if (confirmationResult) {
       setTimeout(() => {
-        otpForm.reset({ otp: "" });
+        otpForm.reset({ otpCode: "" });
       }, 50);
     }
   }, [confirmationResult, otpForm]);
@@ -95,13 +95,13 @@ export function LoginForm() {
     if (!confirmationResult) return;
     setIsSubmitting(true);
     try {
-      await confirmationResult.confirm(values.otp);
+      await confirmationResult.confirm(values.otpCode);
       toast({ title: "Login Successful!", description: "Redirecting to admin dashboard..." });
       router.push("/admin");
     } catch (error: any) {
       console.error("Error verifying OTP:", error);
       toast({ variant: "destructive", title: "Invalid OTP", description: "The OTP you entered is incorrect. Please try again." });
-      otpForm.reset({ otp: "" });
+      otpForm.reset({ otpCode: "" });
     } finally {
       setIsSubmitting(false);
     }
@@ -113,7 +113,7 @@ export function LoginForm() {
         <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6" autoComplete="off">
           <FormField
             control={otpForm.control}
-            name="otp"
+            name="otpCode"
             render={({ field }) => (
               <FormItem className="flex flex-col items-center justify-center text-center">
                 <FormLabel className="text-lg font-semibold">Enter Your Code</FormLabel>
