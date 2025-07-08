@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,7 +30,7 @@ export function LoginForm() {
 
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
     resolver: zodResolver(phoneSchema),
-    defaultValues: { phone: "" },
+    defaultValues: { phone: "+91" },
   });
 
   const otpForm = useForm<z.infer<typeof otpSchema>>({
@@ -115,7 +116,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <Input placeholder="+1 123 456 7890" {...field} />
+                <Input placeholder="+91 98765 43210" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

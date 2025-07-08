@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Bird } from "@/lib/types";
@@ -13,8 +14,8 @@ type WhatsappButtonProps = {
 };
 
 export function WhatsappButton({ bird }: WhatsappButtonProps) {
-  // IMPORTANT: Replace with your actual phone number including country code (without '+')
-  const phoneNumber = "1234567890";
+  // IMPORTANT: Replace with your actual phone number including country code (e.g., 919876543210)
+  const phoneNumber = "919876543210";
 
   const message = `Hello Rohith Farms, I'm interested in the ${bird.bloodline}.
 Name: ${bird.name}
