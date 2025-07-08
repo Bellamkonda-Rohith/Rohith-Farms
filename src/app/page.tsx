@@ -19,6 +19,7 @@ export default async function Home() {
           alt="Rohith Farms Banner"
           layout="fill"
           objectFit="cover"
+          objectPosition="top"
           className="z-0 brightness-50"
           data-ai-hint="gamefowl farm"
         />
