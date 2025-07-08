@@ -53,7 +53,7 @@ export function LoginForm() {
     if (confirmationResult) {
       otpForm.reset({ otp: "" });
     }
-  }, [confirmationResult]);
+  }, [confirmationResult, otpForm]);
 
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
@@ -108,7 +108,7 @@ export function LoginForm() {
   if (confirmationResult) {
     return (
       <Form {...otpForm}>
-        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6" autoComplete="off">
+        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6">
           <FormField
             control={otpForm.control}
             name="otp"
@@ -119,7 +119,7 @@ export function LoginForm() {
                   <InputOTP
                     maxLength={6}
                     {...field}
-                    autoComplete="one-time-code"
+                    autoComplete="off"
                   >
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
