@@ -54,7 +54,7 @@ export function LoginForm() {
       // Use a short timeout to clear the field, fighting against aggressive browser autofill
       setTimeout(() => {
         otpForm.reset({ otp: "" });
-      }, 1);
+      }, 50);
     }
   }, [confirmationResult, otpForm]);
 
@@ -122,7 +122,9 @@ export function LoginForm() {
                   <InputOTP
                     maxLength={6}
                     {...field}
-                    autoComplete="new-password"
+                    autoComplete="one-time-code"
+                    pattern="d{6}"
+                    inputMode="numeric"
                   >
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
