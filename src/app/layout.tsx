@@ -1,14 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ 
+const outfit = Outfit({ 
   subsets: ["latin"],
   display: 'swap',
+  variable: '--font-sans',
 });
 
 const APP_NAME = "Rohith Farms";
@@ -61,7 +62,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={cn("font-sans antialiased min-h-screen flex flex-col bg-background", inter.className)}>
+      <body className={cn("font-sans antialiased min-h-screen flex flex-col bg-background", outfit.variable)}>
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />

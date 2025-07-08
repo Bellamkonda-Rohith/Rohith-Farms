@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from "next/image";
@@ -49,7 +48,7 @@ export default function Home() {
       }}
     >
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] md:min-h-screen flex items-center justify-center text-center text-primary-foreground overflow-hidden">
+      <section className="relative min-h-[90vh] md:min-h-screen flex items-center justify-center text-center text-white overflow-hidden">
         <motion.div
           className="absolute inset-0 z-0"
           variants={{
@@ -68,13 +67,13 @@ export default function Home() {
         </motion.div>
         <div className="relative z-10 p-4 max-w-4xl">
           <motion.h1 
-            className="text-5xl md:text-7xl lg:text-8xl font-bold font-headline tracking-tighter"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold font-headline tracking-tighter [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]"
             variants={FADE_DOWN_ANIMATION_VARIANTS}
           >
             Rohith Farms
           </motion.h1>
           <motion.p 
-            className="mt-4 text-lg md:text-xl text-primary-foreground/80"
+            className="mt-4 text-lg md:text-xl text-white/80 [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]"
             variants={FADE_DOWN_ANIMATION_VARIANTS}
           >
             Breeding World-Class Champions, One Generation at a Time.
