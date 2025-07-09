@@ -127,7 +127,7 @@ export function LoginForm() {
                   <InputOTP
                     maxLength={6}
                     {...field}
-                    autoComplete="new-password"
+                    autoComplete="one-time-code"
                     pattern="\d{6}"
                     inputMode="numeric"
                   >
