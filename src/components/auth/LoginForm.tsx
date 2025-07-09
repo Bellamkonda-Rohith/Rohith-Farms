@@ -20,9 +20,9 @@ const phoneSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
 });
 
-// Schema for the OTP input. Using 'pin' to avoid autofill conflicts.
+// Schema for the OTP input. Using a more unique name to avoid autofill conflicts.
 const otpSchema = z.object({
-  pin: z.string().length(6, "OTP must be 6 digits."),
+  otpCode: z.string().length(6, "OTP must be 6 digits."),
 });
 
 export function LoginForm() {
@@ -40,7 +40,7 @@ export function LoginForm() {
   // Form for the OTP
   const otpForm = useForm<z.infer<typeof otpSchema>>({
     resolver: zodResolver(otpSchema),
-    defaultValues: { pin: "" },
+    defaultValues: { otpCode: "" },
   });
 
   // Initialize reCAPTCHA verifier
@@ -60,8 +60,8 @@ export function LoginForm() {
       // Using a short timeout helps ensure this runs after the browser has had a chance
       // to attempt an autofill, effectively overriding it.
       setTimeout(() => {
-        otpForm.reset({ pin: "" });
-      }, 50);
+        otpForm.reset({ otpCode: "" });
+      }, 100);
     }
   }, [confirmationResult, otpForm]);
 
@@ -103,14 +103,14 @@ export function LoginForm() {
     if (!confirmationResult) return;
     setIsSubmitting(true);
     try {
-      await confirmationResult.confirm(values.pin);
+      await confirmationResult.confirm(values.otpCode);
       toast({ title: "Login Successful!", description: "Redirecting to admin dashboard..." });
       router.push("/admin");
     } catch (error: any) {
       console.error("Error verifying OTP:", error);
       toast({ variant: "destructive", title: "Invalid OTP", description: "The OTP you entered is incorrect. Please try again." });
       // Reset form on error to allow user to re-enter the code
-      otpForm.reset({ pin: "" });
+      otpForm.reset({ otpCode: "" });
     } finally {
       setIsSubmitting(false);
     }
@@ -127,7 +127,7 @@ export function LoginForm() {
         >
           <FormField
             control={otpForm.control}
-            name="pin"
+            name="otpCode"
             render={({ field }) => (
               <FormItem className="flex flex-col items-center justify-center text-center">
                 <FormLabel className="text-lg font-semibold">Enter Your Code</FormLabel>
