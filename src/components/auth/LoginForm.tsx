@@ -30,7 +30,7 @@ export function LoginForm() {
   const { toast } = useToast();
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [otpInputName, setOtpInputName] = useState('pin');
+  const [otpFormKey, setOtpFormKey] = useState(0);
 
   // Form for the phone number
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
@@ -54,17 +54,12 @@ export function LoginForm() {
     }
   }, []);
 
-  // Force reset OTP form and randomize input name to fight browser autofill
+  // When we get a confirmation result, increment the key to force-remount the OTP form
   useEffect(() => {
     if (confirmationResult) {
-      // Generate a new random name for the input to break autofill memory
-      setOtpInputName(`pin-${Math.random().toString(36).substring(7)}`);
-      
-      setTimeout(() => {
-        otpForm.reset({ pin: "" });
-      }, 100);
+      setOtpFormKey(key => key + 1);
     }
-  }, [confirmationResult, otpForm]);
+  }, [confirmationResult]);
 
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
@@ -110,7 +105,8 @@ export function LoginForm() {
     } catch (error: any) {
       console.error("Error verifying OTP:", error);
       toast({ variant: "destructive", title: "Invalid OTP", description: "The OTP you entered is incorrect. Please try again." });
-      otpForm.reset({ pin: "" }); // Clear the form on error
+      // Force remount on error too, to clear the field
+      setOtpFormKey(key => key + 1);
     } finally {
       setIsSubmitting(false);
     }
@@ -120,7 +116,12 @@ export function LoginForm() {
   if (confirmationResult) {
     return (
       <Form {...otpForm}>
-        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6" autoComplete="off">
+        <form
+          key={otpFormKey} // Force remount with new key
+          onSubmit={otpForm.handleSubmit(onVerifyOtp)}
+          className="space-y-6"
+          autoComplete="off" // Turn off general form autofill
+        >
           <FormField
             control={otpForm.control}
             name="pin"
@@ -131,8 +132,7 @@ export function LoginForm() {
                   <InputOTP
                     maxLength={6}
                     {...field}
-                    name={otpInputName}
-                    autoComplete="off"
+                    autoComplete="one-time-code" // Correct semantic autocomplete
                     pattern="\d{6}"
                     inputMode="numeric"
                   >
