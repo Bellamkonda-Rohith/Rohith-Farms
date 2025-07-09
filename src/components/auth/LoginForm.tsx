@@ -142,7 +142,9 @@ export function LoginForm() {
                   </InputOTP>
                 </FormControl>
                 <FormDescription>
-                  Please enter the 6-digit code sent to your phone.
+                  Please enter the 6-digit code.
+                  <br />
+                  <span className="text-xs font-semibold">(For test numbers, use the code from your Firebase console, e.g., 123456)</span>
                 </FormDescription>
                 <FormMessage />
               </FormItem>
