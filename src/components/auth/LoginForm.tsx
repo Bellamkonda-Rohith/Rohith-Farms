@@ -30,7 +30,6 @@ export function LoginForm() {
   const { toast } = useToast();
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [otpFormKey, setOtpFormKey] = useState(0);
 
   // Form for the phone number
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
@@ -53,13 +52,18 @@ export function LoginForm() {
       });
     }
   }, []);
-
-  // When we get a confirmation result, increment the key to force-remount the OTP form
+  
+  // This useEffect will run when the OTP form is about to be displayed.
+  // It resets the form to clear any previous values or browser autofills.
   useEffect(() => {
     if (confirmationResult) {
-      setOtpFormKey(key => key + 1);
+      // Using a short timeout helps ensure this runs after the browser has had a chance
+      // to attempt an autofill, effectively overriding it.
+      setTimeout(() => {
+        otpForm.reset({ pin: "" });
+      }, 50);
     }
-  }, [confirmationResult]);
+  }, [confirmationResult, otpForm]);
 
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
@@ -105,8 +109,8 @@ export function LoginForm() {
     } catch (error: any) {
       console.error("Error verifying OTP:", error);
       toast({ variant: "destructive", title: "Invalid OTP", description: "The OTP you entered is incorrect. Please try again." });
-      // Force remount on error too, to clear the field
-      setOtpFormKey(key => key + 1);
+      // Reset form on error to allow user to re-enter the code
+      otpForm.reset({ pin: "" });
     } finally {
       setIsSubmitting(false);
     }
@@ -117,10 +121,9 @@ export function LoginForm() {
     return (
       <Form {...otpForm}>
         <form
-          key={otpFormKey} // Force remount with new key
           onSubmit={otpForm.handleSubmit(onVerifyOtp)}
           className="space-y-6"
-          autoComplete="off" // Turn off general form autofill
+          autoComplete="off"
         >
           <FormField
             control={otpForm.control}
@@ -132,7 +135,7 @@ export function LoginForm() {
                   <InputOTP
                     maxLength={6}
                     {...field}
-                    autoComplete="one-time-code" // Correct semantic autocomplete
+                    autoComplete="one-time-code"
                     pattern="\d{6}"
                     inputMode="numeric"
                   >
