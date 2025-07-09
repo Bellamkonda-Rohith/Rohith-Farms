@@ -15,12 +15,14 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
+// Schema for the phone number input
 const phoneSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
 });
 
+// Schema for the OTP input. Using 'pin' to avoid autofill conflicts.
 const otpSchema = z.object({
-  otpCode: z.string().length(6, "OTP must be 6 digits."),
+  pin: z.string().length(6, "OTP must be 6 digits."),
 });
 
 export function LoginForm() {
@@ -29,16 +31,19 @@ export function LoginForm() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Form for the phone number
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
     resolver: zodResolver(phoneSchema),
     defaultValues: { phone: "" },
   });
 
+  // Form for the OTP
   const otpForm = useForm<z.infer<typeof otpSchema>>({
     resolver: zodResolver(otpSchema),
-    defaultValues: { otpCode: "" },
+    defaultValues: { pin: "" },
   });
 
+  // Initialize reCAPTCHA verifier
   useEffect(() => {
     if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
@@ -48,12 +53,12 @@ export function LoginForm() {
     }
   }, []);
 
-  // Reset OTP form when it's about to be shown to fight browser autofill
+  // Force reset OTP form when it's about to be shown to fight browser autofill
   useEffect(() => {
     if (confirmationResult) {
       setTimeout(() => {
-        otpForm.reset({ otpCode: "" });
-      }, 50);
+        otpForm.reset({ pin: "" });
+      }, 100); // Increased delay to ensure autofill is overridden
     }
   }, [confirmationResult, otpForm]);
 
@@ -72,19 +77,19 @@ export function LoginForm() {
 
       if (error.code === 'auth/captcha-check-failed') {
         title = "Configuration Error: Domain Not Authorized";
-        description = `This is a Firebase security setting. Your app's domain must be authorized. Go to your Firebase Console -> Authentication -> Settings -> Authorized domains, and add the domain from your browser's address bar: ${window.location.hostname}`;
+        description = `This is a Firebase security setting. Your app's domain must be authorized. Go to your Firebase Console -> Authentication -> Settings -> Authorized domains, and add this domain: ${window.location.hostname}`;
       } else if (error.code === 'auth/too-many-requests') {
         title = "Too Many Attempts";
         description = "You have requested an OTP too many times. Please wait a few minutes before trying again.";
       } else {
-         description = `Please check the phone number or try again. Ensure it's added as a test number in your Firebase project. Error code: ${error.code || 'UNKNOWN'}`;
+         description = `Please check the phone number or try again. For testing, ensure it's added as a test number in your Firebase project. Error: ${error.code || 'UNKNOWN'}`;
       }
 
       toast({ 
         variant: "destructive", 
         title: title, 
         description: description,
-        duration: 15000,
+        duration: 15000, // Keep toast visible for longer
       });
     } finally {
       setIsSubmitting(false);
@@ -95,25 +100,26 @@ export function LoginForm() {
     if (!confirmationResult) return;
     setIsSubmitting(true);
     try {
-      await confirmationResult.confirm(values.otpCode);
+      await confirmationResult.confirm(values.pin);
       toast({ title: "Login Successful!", description: "Redirecting to admin dashboard..." });
       router.push("/admin");
     } catch (error: any) {
       console.error("Error verifying OTP:", error);
       toast({ variant: "destructive", title: "Invalid OTP", description: "The OTP you entered is incorrect. Please try again." });
-      otpForm.reset({ otpCode: "" });
+      otpForm.reset({ pin: "" }); // Clear the form on error
     } finally {
       setIsSubmitting(false);
     }
   }
 
+  // Render OTP verification form if confirmationResult is set
   if (confirmationResult) {
     return (
       <Form {...otpForm}>
         <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6" autoComplete="off">
           <FormField
             control={otpForm.control}
-            name="otpCode"
+            name="pin" // Using 'pin' as the field name
             render={({ field }) => (
               <FormItem className="flex flex-col items-center justify-center text-center">
                 <FormLabel className="text-lg font-semibold">Enter Your Code</FormLabel>
@@ -121,8 +127,8 @@ export function LoginForm() {
                   <InputOTP
                     maxLength={6}
                     {...field}
-                    autoComplete="one-time-code"
-                    pattern="\\d{6}"
+                    autoComplete="one-time-code" // Standard attribute to hint this is an OTP
+                    pattern="\d{6}"
                     inputMode="numeric"
                   >
                     <InputOTPGroup>
@@ -151,9 +157,10 @@ export function LoginForm() {
     );
   }
 
+  // Render phone number input form by default
   return (
     <Form {...phoneForm}>
-      <form onSubmit={phoneForm.handleSubmit(onSendOtp)} className="space-y-6">
+      <form onSubmit={phoneForm.handleSubmit(onSendOtp)} className="space-y-6" autoComplete="off">
         <FormField
           control={phoneForm.control}
           name="phone"
@@ -169,6 +176,7 @@ export function LoginForm() {
                     type="tel"
                     placeholder="9876543210" 
                     className="pl-12"
+                    autoComplete="tel"
                     {...field} 
                   />
                 </div>
