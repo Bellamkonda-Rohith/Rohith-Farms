@@ -116,10 +116,10 @@ export function LoginForm() {
   if (confirmationResult) {
     return (
       <Form {...otpForm}>
-        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6" autoComplete="off">
+        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6">
           <FormField
             control={otpForm.control}
-            name="pin" // Using 'pin' as the field name
+            name="pin"
             render={({ field }) => (
               <FormItem className="flex flex-col items-center justify-center text-center">
                 <FormLabel className="text-lg font-semibold">Enter Your Code</FormLabel>
@@ -127,7 +127,7 @@ export function LoginForm() {
                   <InputOTP
                     maxLength={6}
                     {...field}
-                    autoComplete="one-time-code" // Standard attribute to hint this is an OTP
+                    autoComplete="new-password"
                     pattern="\d{6}"
                     inputMode="numeric"
                   >
@@ -160,7 +160,7 @@ export function LoginForm() {
   // Render phone number input form by default
   return (
     <Form {...phoneForm}>
-      <form onSubmit={phoneForm.handleSubmit(onSendOtp)} className="space-y-6" autoComplete="off">
+      <form onSubmit={phoneForm.handleSubmit(onSendOtp)} className="space-y-6">
         <FormField
           control={phoneForm.control}
           name="phone"
