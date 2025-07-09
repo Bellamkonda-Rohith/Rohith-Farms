@@ -30,6 +30,7 @@ export function LoginForm() {
   const { toast } = useToast();
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [otpInputName, setOtpInputName] = useState('pin');
 
   // Form for the phone number
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
@@ -53,12 +54,15 @@ export function LoginForm() {
     }
   }, []);
 
-  // Force reset OTP form when it's about to be shown to fight browser autofill
+  // Force reset OTP form and randomize input name to fight browser autofill
   useEffect(() => {
     if (confirmationResult) {
+      // Generate a new random name for the input to break autofill memory
+      setOtpInputName(`pin-${Math.random().toString(36).substring(7)}`);
+      
       setTimeout(() => {
         otpForm.reset({ pin: "" });
-      }, 100); // Increased delay to ensure autofill is overridden
+      }, 100);
     }
   }, [confirmationResult, otpForm]);
 
@@ -116,7 +120,7 @@ export function LoginForm() {
   if (confirmationResult) {
     return (
       <Form {...otpForm}>
-        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6">
+        <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-6" autoComplete="off">
           <FormField
             control={otpForm.control}
             name="pin"
@@ -127,7 +131,8 @@ export function LoginForm() {
                   <InputOTP
                     maxLength={6}
                     {...field}
-                    autoComplete="one-time-code"
+                    name={otpInputName}
+                    autoComplete="off"
                     pattern="\d{6}"
                     inputMode="numeric"
                   >
