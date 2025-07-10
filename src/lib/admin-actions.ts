@@ -2,7 +2,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { collection, addDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, deleteDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Bird } from './types';
 import { deleteImage } from './storage';
@@ -41,14 +41,42 @@ export async function addBird(birdData: BirdUrlFormData) {
   }
 }
 
+export async function updateBird(birdId: string, birdData: BirdUrlFormData) {
+  try {
+    const birdRef = doc(db, 'birds', birdId);
+    await setDoc(birdRef, birdData, { merge: true });
 
-export async function deleteBird(birdId: string, imagePaths: string[]) {
+    revalidatePath('/admin');
+    revalidatePath(`/birds/${birdId}`);
+    revalidatePath('/birds');
+
+    return { success: true, message: 'Bird updated successfully!' };
+  } catch (error) {
+    console.error('Error updating bird:', error);
+    let errorMessage = 'Failed to update bird.';
+    if (error instanceof Error) {
+        errorMessage = error.message;
+    }
+    return { success: false, message: errorMessage };
+  }
+}
+
+
+export async function deleteBird(bird: Bird) {
     try {
         // Delete the document from Firestore
-        await deleteDoc(doc(db, 'birds', birdId));
+        await deleteDoc(doc(db, 'birds', bird.id));
+
+        // Gather all image URLs to delete from Storage
+        const imageUrlsToDelete = [
+            bird.imageUrl,
+            bird.father?.imageUrl,
+            bird.mother?.imageUrl,
+        ].filter((url): url is string => !!url);
+
 
         // Delete associated images from Storage
-        const deletePromises = imagePaths.filter(Boolean).map(path => deleteImage(path));
+        const deletePromises = imageUrlsToDelete.map(url => deleteImage(url));
         await Promise.all(deletePromises);
         
         revalidatePath('/admin');

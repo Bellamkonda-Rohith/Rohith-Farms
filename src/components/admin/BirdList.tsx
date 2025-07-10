@@ -41,8 +41,7 @@ export function BirdList({ birds }: BirdListProps) {
 
   const handleDelete = async (bird: Bird) => {
     setDeletingId(bird.id);
-    const imagePaths = [bird.imageUrl, bird.father.imageUrl, bird.mother.imageUrl];
-    const result = await deleteBird(bird.id, imagePaths);
+    const result = await deleteBird(bird);
 
     if (result.success) {
       toast({

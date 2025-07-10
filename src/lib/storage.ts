@@ -25,11 +25,22 @@ export async function uploadImage(file: File, folder: string): Promise<string> {
 
 export async function deleteImage(imageUrl: string): Promise<void> {
     try {
-        const storageRef = ref(storage, imageUrl);
+        // This is the crucial fix: get the file path from the full URL.
+        const decodedUrl = decodeURIComponent(imageUrl);
+        const path = decodedUrl.split('/o/')[1].split('?')[0];
+        
+        if (!path) {
+            console.warn(`Could not determine storage path from URL: ${imageUrl}`);
+            return;
+        }
+
+        const storageRef = ref(storage, path);
         await deleteObject(storageRef);
     } catch (error: any) {
         // It's okay if the file doesn't exist, we can ignore that error.
-        if (error.code !== 'storage/object-not-found') {
+        if (error.code === 'storage/object-not-found') {
+            console.log(`Image not found at ${imageUrl}, skipping delete.`);
+        } else {
             console.error(`Failed to delete image at ${imageUrl}:`, error);
             // We don't rethrow because failing to delete an image shouldn't
             // block the deletion of the Firestore document.
