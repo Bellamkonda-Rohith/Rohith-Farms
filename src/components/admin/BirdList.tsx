@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Trash2, Loader2, Edit } from 'lucide-react';
+import { Trash2, Loader2, Edit, CheckCircle, XCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -68,9 +68,10 @@ export function BirdList({ birds }: BirdListProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[80px]">Image</TableHead>
-            <TableHead>Bloodline</TableHead>
             <TableHead>Name/ID</TableHead>
+            <TableHead>Price</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Featured</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -79,24 +80,25 @@ export function BirdList({ birds }: BirdListProps) {
             <TableRow key={bird.id}>
               <TableCell>
                 <Image
-                  src={bird.imageUrl}
+                  src={bird.birdImages[0] || 'https://placehold.co/100x100.png'}
                   alt={bird.name}
                   width={64}
                   height={64}
                   className="rounded-md object-cover aspect-square"
                 />
               </TableCell>
-              <TableCell className="font-medium">{bird.bloodline}</TableCell>
-              <TableCell>{bird.name}</TableCell>
+              <TableCell className="font-medium">{bird.name}</TableCell>
+              <TableCell>₹{bird.price.toLocaleString('en-IN')}</TableCell>
               <TableCell>
                 <Badge
-                  className={cn(
-                    bird.isAvailable ? 'bg-green-600' : 'bg-red-600',
-                    'text-white'
-                  )}
+                  variant={bird.isSold ? 'destructive' : 'default'}
+                  className={cn(bird.isSold ? "bg-red-600" : "bg-green-600", "text-white")}
                 >
-                  {bird.isAvailable ? 'Available' : 'Sold'}
+                  {bird.isSold ? 'Sold' : 'Available'}
                 </Badge>
+              </TableCell>
+              <TableCell>
+                {bird.isFeatured ? <CheckCircle className="h-5 w-5 text-accent" /> : <XCircle className="h-5 w-5 text-muted-foreground"/>}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
@@ -122,7 +124,7 @@ export function BirdList({ birds }: BirdListProps) {
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
                           This action cannot be undone. This will permanently delete the bird
-                          and all associated images from the servers.
+                          and all associated images and videos from the servers.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

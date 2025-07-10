@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Bird } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Eye } from "lucide-react";
+import { Eye, IndianRupee } from "lucide-react";
 
 type BirdCardProps = {
   bird: Bird;
@@ -27,7 +27,7 @@ export function BirdCard({ bird }: BirdCardProps) {
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className="h-full"
     >
-      <Card className="flex flex-col h-full overflow-hidden rounded-2xl bg-background/50 border-2 border-transparent hover:border-primary transition-colors duration-300 shadow-lg">
+      <Card className="flex flex-col h-full overflow-hidden rounded-2xl bg-card border-2 border-transparent hover:border-primary transition-colors duration-300 shadow-lg">
         <CardHeader className="p-0 relative">
           <Link href={`/birds/${bird.id}`} className="block overflow-hidden">
             <motion.div
@@ -35,7 +35,7 @@ export function BirdCard({ bird }: BirdCardProps) {
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
             >
                 <Image
-                    src={bird.imageUrl}
+                    src={bird.birdImages[0] || "https://placehold.co/600x400.png"}
                     alt={bird.name}
                     width={600}
                     height={400}
@@ -45,19 +45,24 @@ export function BirdCard({ bird }: BirdCardProps) {
             </motion.div>
           </Link>
           <Badge
+            variant={bird.isSold ? "destructive" : "default"}
             className={cn(
               "absolute top-4 right-4 text-sm font-bold rounded-full border-none",
-              bird.isAvailable ? "bg-green-500 text-white" : "bg-red-600 text-white"
+              bird.isSold ? "bg-red-600 text-white" : "bg-green-600 text-white"
             )}
           >
-            {bird.isAvailable ? "Available" : "Sold"}
+            {bird.isSold ? "Sold" : "Available"}
           </Badge>
         </CardHeader>
         <CardContent className="flex-grow p-6">
-          <CardTitle className="text-2xl font-bold text-primary">{bird.bloodline}</CardTitle>
-          <p className="mt-2 text-base text-muted-foreground line-clamp-2">{bird.traits}</p>
+          <CardTitle className="text-2xl font-bold text-primary">{bird.name}</CardTitle>
+          <p className="mt-2 text-base text-muted-foreground line-clamp-2">{bird.description}</p>
         </CardContent>
-        <CardFooter className="p-6 pt-0">
+        <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4">
+          <div className="flex items-center text-2xl font-bold text-accent">
+            <IndianRupee className="h-6 w-6 mr-1" />
+            <span>{bird.price.toLocaleString('en-IN')}</span>
+          </div>
           <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full text-base">
             <Link href={`/birds/${bird.id}`}>
               <Eye className="mr-2 h-4 w-4" /> View Details

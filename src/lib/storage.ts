@@ -1,31 +1,65 @@
 
 'use server';
 
-import { getDownloadURL, ref, uploadBytes, deleteObject } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from 'firebase/storage';
 import { storage } from './firebase';
-import { v4 as uuidv4 } from 'uuid';
 
-export async function uploadImage(file: File, folder: string): Promise<string> {
-  if (!file || file.size === 0) {
+export async function uploadFile(
+  file: File,
+  folder: string,
+  onProgress: (progress: number) => void
+): Promise<string> {
+  if (!file) {
     throw new Error("A file is required for upload.");
   }
 
-  if (!file.type.startsWith('image/')) {
-    throw new Error('Provided file is not an image.');
+  const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+
+  const isImage = file.type.startsWith('image/');
+  const isVideo = file.type.startsWith('video/');
+
+  if (isImage && !allowedImageTypes.includes(file.type)) {
+    throw new Error(`Unsupported image type: ${file.type}. Please use JPG, PNG, WEBP, or GIF.`);
   }
 
-  const filePath = `${folder}/${uuidv4()}-${file.name}`;
+  if (isVideo && !allowedVideoTypes.includes(file.type)) {
+     throw new Error(`Unsupported video type: ${file.type}. Please use MP4, WEBM, or MOV.`);
+  }
+
+  if (!isImage && !isVideo) {
+      throw new Error('File type not supported. Please upload an image or video.');
+  }
+
+  const filePath = `${folder}/${Date.now()}-${file.name}`;
   const storageRef = ref(storage, filePath);
 
-  await uploadBytes(storageRef, file, { contentType: file.type });
-  const downloadURL = await getDownloadURL(storageRef);
+  const uploadTask = uploadBytesResumable(storageRef, file, { contentType: file.type });
 
-  return downloadURL;
+  return new Promise((resolve, reject) => {
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        onProgress(progress);
+      },
+      (error) => {
+        console.error('Upload failed:', error);
+        reject(new Error(`Upload failed. Code: ${error.code}`));
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        resolve(downloadURL);
+      }
+    );
+  });
 }
 
 export async function deleteImage(imageUrl: string): Promise<void> {
+    if (!imageUrl.includes('firebasestorage.googleapis.com')) {
+        console.warn(`Skipping delete for non-storage URL: ${imageUrl}`);
+        return;
+    }
     try {
-        // This is the crucial fix: get the file path from the full URL.
         const decodedUrl = decodeURIComponent(imageUrl);
         const path = decodedUrl.split('/o/')[1].split('?')[0];
         
@@ -37,13 +71,11 @@ export async function deleteImage(imageUrl: string): Promise<void> {
         const storageRef = ref(storage, path);
         await deleteObject(storageRef);
     } catch (error: any) {
-        // It's okay if the file doesn't exist, we can ignore that error.
         if (error.code === 'storage/object-not-found') {
             console.log(`Image not found at ${imageUrl}, skipping delete.`);
         } else {
             console.error(`Failed to delete image at ${imageUrl}:`, error);
-            // We don't rethrow because failing to delete an image shouldn't
-            // block the deletion of the Firestore document.
+            throw error;
         }
     }
 }

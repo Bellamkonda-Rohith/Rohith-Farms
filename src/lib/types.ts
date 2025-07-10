@@ -1,20 +1,22 @@
-
-export type ParentInfo = {
-  name: string;
-  imageUrl: string;
-  videoUrl?: string;
-};
-
 export type Bird = {
   id: string;
   name: string;
-  bloodline: string;
-  traits: string;
-  isAvailable: boolean;
-  imageUrl: string;
-  videoUrl?: string; // YouTube embed URL
-  father: ParentInfo;
-  mother: ParentInfo;
+  age: string;
+  price: number;
+  description: string;
+  
+  birdImages: string[];
+  birdVideos: string[];
+  
+  motherImages: string[];
+  motherVideos: string[];
+  
+  fatherImages: string[];
+  fatherVideos: string[];
+
+  isFeatured: boolean;
+  isSold: boolean;
+  createdAt: string; // ISO string format
 };
 
 export type AdminUser = {

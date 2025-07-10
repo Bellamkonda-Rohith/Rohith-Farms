@@ -5,21 +5,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { WhatsappButton } from "@/components/WhatsappButton";
 import { cn } from "@/lib/utils";
-import { Dna, ShieldCheck, Video } from "lucide-react";
+import { Dna, IndianRupee, Tag, ShieldCheck, Video, Calendar, Image as ImageIcon } from "lucide-react";
 import { getBird } from "@/lib/birds";
+import { MediaCarousel } from "@/components/MediaCarousel";
 
-const VideoPlayer = ({ videoUrl }: { videoUrl: string }) => (
-  <div className="aspect-video w-full rounded-lg overflow-hidden shadow-xl mt-4">
-    <iframe
-      width="100%"
-      height="100%"
-      src={videoUrl}
-      title="YouTube video player"
-      frameBorder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    ></iframe>
+const DetailItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: string | number }) => (
+  <div className="flex items-start gap-3">
+    <Icon className="h-6 w-6 text-accent mt-1 flex-shrink-0" />
+    <div>
+      <p className="font-semibold text-primary">{label}</p>
+      <p className="text-muted-foreground">{value}</p>
+    </div>
   </div>
+);
+
+const ParentCard = ({ title, images, videos }: { title: string, images: string[], videos: string[] }) => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="font-headline text-2xl text-center">{title}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      {images.length > 0 ? (
+        <MediaCarousel images={images} videos={[]} />
+      ) : (
+        <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+            <ImageIcon className="h-12 w-12 text-muted-foreground" />
+        </div>
+      )}
+      {videos.length > 0 && (
+        <div className="mt-4">
+            <h3 className="text-lg font-semibold mb-2 text-center">Videos</h3>
+            <MediaCarousel images={[]} videos={videos} />
+        </div>
+      )}
+    </CardContent>
+  </Card>
 );
 
 export default async function BirdDetailPage({ params }: { params: { id: string } }) {
@@ -32,91 +52,59 @@ export default async function BirdDetailPage({ params }: { params: { id: string 
         <p className="text-muted-foreground mt-2">
           The bird you are looking for does not exist or may have been moved.
         </p>
-        <p className="text-muted-foreground text-sm mt-1">
-            (If you are the admin, please check your Firebase configuration and data.)
-        </p>
       </div>
     );
   }
+
+  const allBirdMedia = [...bird.birdImages, ...bird.birdVideos];
 
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 py-8 md:py-16">
         <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
-          {/* Left Column - Image */}
           <div className="lg:col-span-3">
-            <div className="rounded-lg overflow-hidden shadow-2xl sticky top-24">
-              <Image
-                src={bird.imageUrl}
-                alt={bird.name}
-                width={1200}
-                height={800}
-                className="w-full h-auto object-cover"
-                data-ai-hint="gamefowl portrait"
-              />
+            <div className="sticky top-24">
+              {allBirdMedia.length > 0 ? (
+                 <MediaCarousel images={bird.birdImages} videos={bird.birdVideos} />
+              ) : (
+                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+                    <ImageIcon className="h-24 w-24 text-muted-foreground" />
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Right Column - Details */}
           <div className="lg:col-span-2">
-            <h1 className="font-headline text-4xl md:text-5xl font-bold text-primary">{bird.bloodline}</h1>
+            <h1 className="font-headline text-4xl md:text-5xl font-bold text-primary">{bird.name}</h1>
             <div className="flex items-center gap-4 mt-4">
-              <Badge className={cn("text-lg", bird.isAvailable ? "bg-green-600" : "bg-red-600")}>
-                {bird.isAvailable ? "Available" : "Sold"}
+              <Badge variant={bird.isSold ? 'destructive' : 'default'} className={cn("text-lg", bird.isSold ? "bg-red-600" : "bg-green-600", "text-white")}>
+                {bird.isSold ? "Sold" : "Available"}
               </Badge>
-              <p className="text-lg text-muted-foreground">{bird.name}</p>
+              {bird.isFeatured && <Badge className="bg-yellow-500 text-white text-lg">Featured</Badge>}
             </div>
             
             <Separator className="my-6" />
 
             <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-headline flex items-center gap-2"><ShieldCheck className="text-accent" /> Traits</h2>
-                <p className="mt-2 text-lg text-muted-foreground leading-relaxed">{bird.traits}</p>
-              </div>
+                <DetailItem icon={IndianRupee} label="Price" value={`₹${bird.price.toLocaleString('en-IN')}`} />
+                <DetailItem icon={Calendar} label="Age" value={bird.age} />
+                <DetailItem icon={ShieldCheck} label="Description" value={bird.description} />
             </div>
             
-            <div className="mt-8">
-              <WhatsappButton bird={bird} />
-            </div>
+            {!bird.isSold && (
+                <div className="mt-8">
+                <WhatsappButton bird={bird} />
+                </div>
+            )}
           </div>
         </div>
 
-        {/* Video Section */}
-        {bird.videoUrl && (
-          <div className="mt-16">
-            <h2 className="text-3xl font-headline text-center mb-8 flex items-center justify-center gap-3"><Video className="text-primary"/> Fighting Video</h2>
-            <div className="max-w-4xl mx-auto">
-              <VideoPlayer videoUrl={bird.videoUrl} />
-            </div>
-          </div>
-        )}
-
-        {/* Pedigree Section */}
-        {bird.father && bird.mother && (
-            <div className="mt-16">
+        {(bird.fatherImages.length > 0 || bird.motherImages.length > 0) && (
+            <div className="mt-24">
                 <h2 className="text-3xl font-headline text-center mb-8 flex items-center justify-center gap-3"><Dna className="text-primary"/> Pedigree</h2>
                 <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                    <Card className="text-center">
-                      <CardHeader>
-                          <CardTitle className="font-headline text-2xl">Father</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                          <Image src={bird.father.imageUrl} alt={bird.father.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="rooster male"/>
-                          <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.father.name}</p>
-                          {bird.father.videoUrl && <VideoPlayer videoUrl={bird.father.videoUrl} />}
-                      </CardContent>
-                    </Card>
-                    <Card className="text-center">
-                      <CardHeader>
-                          <CardTitle className="font-headline text-2xl">Mother</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                          <Image src={bird.mother.imageUrl} alt={bird.mother.name} width={400} height={300} className="rounded-md w-full" data-ai-hint="hen female"/>
-                          <p className="mt-4 text-xl font-semibold text-muted-foreground">{bird.mother.name}</p>
-                          {bird.mother.videoUrl && <VideoPlayer videoUrl={bird.mother.videoUrl} />}
-                      </CardContent>
-                    </Card>
+                    <ParentCard title="Father" images={bird.fatherImages} videos={bird.fatherVideos} />
+                    <ParentCard title="Mother" images={bird.motherImages} videos={bird.motherVideos} />
                 </div>
             </div>
         )}

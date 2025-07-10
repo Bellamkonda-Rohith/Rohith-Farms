@@ -2,7 +2,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AddBirdForm } from "@/components/admin/AddBirdForm";
 import { BirdList } from "@/components/admin/BirdList";
 import { getBirds } from "@/lib/birds";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PlusCircle } from "lucide-react";
 
 export default async function AdminPage() {
@@ -10,25 +9,19 @@ export default async function AdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-8">
         <Card>
           <CardHeader>
             <CardTitle className="font-headline text-3xl">Admin Dashboard</CardTitle>
             <CardDescription>Manage your gamefowl catalog.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible>
-              <AccordionItem value="add-bird">
-                <AccordionTrigger>
-                  <span className="flex items-center gap-2 text-lg font-semibold text-primary">
+            <div className="space-y-2">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-primary">
                     <PlusCircle className="h-5 w-5" /> Add New Bird
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent className="pt-4">
-                  <AddBirdForm />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                </h3>
+                <AddBirdForm />
+            </div>
           </CardContent>
         </Card>
 

@@ -1,15 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit } from "next/font/google";
+import { PT_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
 
-const outfit = Outfit({ 
+const ptSans = PT_Sans({ 
   subsets: ["latin"],
+  weight: ['400', '700'],
   display: 'swap',
   variable: '--font-sans',
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  weight: ['700'],
+  display: 'swap',
+  variable: '--font-headline',
 });
 
 const APP_NAME = "Rohith Farms";
@@ -52,7 +60,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1E1E2F", // Matches dark mode background
+  themeColor: "#3D5A47",
 };
 
 export default function RootLayout({
@@ -62,7 +70,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={cn("font-sans antialiased min-h-screen flex flex-col bg-background", outfit.variable)}>
+      <body className={cn("font-sans antialiased min-h-screen flex flex-col bg-background", ptSans.variable, playfairDisplay.variable)}>
         <div id="recaptcha-container"></div>
         <Header />
         <main className="flex-grow">{children}</main>

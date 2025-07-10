@@ -2,35 +2,24 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { collection, addDoc, doc, deleteDoc, setDoc, getDocs, query, where, getDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, deleteDoc, setDoc, getDocs, query, where, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { AdminUser, Bird } from './types';
 import { deleteImage } from './storage';
-import { type BirdUrlFormData } from './schemas';
+import { type BirdFormData } from './schemas';
 
-export async function addBird(birdData: BirdUrlFormData) {
+export async function addBird(birdData: BirdFormData) {
   try {
     const newBird: Omit<Bird, 'id'> = {
       ...birdData,
-      father: {
-        name: birdData.father.name,
-        imageUrl: birdData.father.imageUrl,
-        videoUrl: birdData.father.videoUrl,
-      },
-      mother: {
-        name: birdData.mother.name,
-        imageUrl: birdData.mother.imageUrl,
-        videoUrl: birdData.mother.videoUrl,
-      },
+      createdAt: new Date().toISOString(),
     };
 
-    await addDoc(collection(db, 'birds'), newBird);
+    const docRef = await addDoc(collection(db, 'birds'), newBird);
     
     revalidatePath('/admin');
-    revalidatePath('/');
-    revalidatePath('/birds');
     
-    return { success: true, message: 'Bird added successfully!' };
+    return { success: true, message: 'Bird created successfully!', birdId: docRef.id };
   } catch (error) {
     console.error('Error adding bird:', error);
     let errorMessage = 'Failed to add bird.';
@@ -41,14 +30,15 @@ export async function addBird(birdData: BirdUrlFormData) {
   }
 }
 
-export async function updateBird(birdId: string, birdData: BirdUrlFormData) {
+export async function updateBird(birdId: string, birdData: BirdFormData) {
   try {
     const birdRef = doc(db, 'birds', birdId);
-    await setDoc(birdRef, birdData, { merge: true });
+    await updateDoc(birdRef, { ...birdData });
 
     revalidatePath('/admin');
     revalidatePath(`/birds/${birdId}`);
     revalidatePath('/birds');
+    revalidatePath(`/admin/edit/${birdId}`);
 
     return { success: true, message: 'Bird updated successfully!' };
   } catch (error) {
@@ -61,15 +51,17 @@ export async function updateBird(birdId: string, birdData: BirdUrlFormData) {
   }
 }
 
-
 export async function deleteBird(bird: Bird) {
     try {
         await deleteDoc(doc(db, 'birds', bird.id));
 
         const imageUrlsToDelete = [
-            bird.imageUrl,
-            bird.father?.imageUrl,
-            bird.mother?.imageUrl,
+            ...bird.birdImages,
+            ...bird.motherImages,
+            ...bird.fatherImages,
+            ...bird.birdVideos,
+            ...bird.motherVideos,
+            ...bird.fatherVideos,
         ].filter((url): url is string => !!url);
 
         const deletePromises = imageUrlsToDelete.map(url => deleteImage(url));
@@ -97,7 +89,6 @@ export async function addAdminByPhone(phone: string) {
   try {
     const fullPhoneNumber = `+91${phone}`;
     
-    // Query the 'users' collection to find the user by phone number
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where("phoneNumber", "==", fullPhoneNumber));
     const querySnapshot = await getDocs(q);
