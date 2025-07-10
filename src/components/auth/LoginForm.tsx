@@ -1,69 +1,88 @@
 
-"use client";
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from "firebase/auth";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
+import {
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  type ConfirmationResult,
+} from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Loader2 } from 'lucide-react';
 
 // Schema for the phone number input
 const phoneSchema = z.object({
-  phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
+  phone: z
+    .string()
+    .regex(/^\d{10}$/, 'Please enter a valid 10-digit mobile number.'),
+});
+
+const otpSchema = z.object({
+    otp_code: z.string().length(6, "Code must be 6 digits."),
 });
 
 export function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [confirmationResult, setConfirmationResult] =
+    useState<ConfirmationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // By giving the OTP input a random name each time, we prevent the browser
-  // from associating it with the phone number and incorrectly autofilling.
-  const otpFieldName = useMemo(() => `otp_code_${Math.random().toString(36).substring(7)}`, [confirmationResult]);
-
+  
   // Form for the phone number
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
     resolver: zodResolver(phoneSchema),
-    defaultValues: { phone: "" },
+    defaultValues: { phone: '' },
   });
 
   // Form for the OTP
-  const otpForm = useForm<{ [key: string]: string }>({
-    resolver: zodResolver(z.object({ [otpFieldName]: z.string().length(6, "Code must be 6 digits.") })),
-    defaultValues: { [otpFieldName]: "" }, // Set default value here
+  const otpForm = useForm<z.infer<typeof otpSchema>>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: { otp_code: "" },
   });
 
   // Initialize reCAPTCHA verifier
   useEffect(() => {
     if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-        "size": "invisible",
-        "callback": () => { /* reCAPTCHA solved */ }
-      });
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        'recaptcha-container',
+        {
+          size: 'invisible',
+          callback: () => {
+            /* reCAPTCHA solved */
+          },
+        }
+      );
     }
   }, []);
-  
+
   useEffect(() => {
     if (confirmationResult) {
-      // Reset the form and focus the input after a short delay
-      // to ensure our changes happen after any browser autofill attempts.
       setTimeout(() => {
-        otpForm.reset({ [otpFieldName]: "" });
-        const input = document.querySelector(`input[name='${otpFieldName}']`) as HTMLInputElement | null;
+        otpForm.reset({ otp_code: "" });
+        const input = document.querySelector(`input[name='otp_code']`) as HTMLInputElement | null;
         if (input) {
             input.focus();
         }
       }, 50);
     }
-  }, [confirmationResult, otpForm, otpFieldName]);
+  }, [confirmationResult, otpForm]);
 
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
@@ -72,25 +91,31 @@ export function LoginForm() {
       const phoneNumber = `+91${values.phone}`;
       const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
       setConfirmationResult(result);
-      toast({ title: "OTP Sent", description: `An OTP has been sent to ${phoneNumber}.` });
+      toast({
+        title: 'OTP Sent',
+        description: `An OTP has been sent to ${phoneNumber}.`,
+      });
     } catch (error: any) {
-      console.error("Error sending OTP:", error);
-      let title = "Failed to Send OTP";
-      let description = "An unknown error occurred. Please try again.";
+      console.error('Error sending OTP:', error);
+      let title = 'Failed to Send OTP';
+      let description = 'An unknown error occurred. Please try again.';
 
       if (error.code === 'auth/captcha-check-failed') {
-        title = "Configuration Error: Domain Not Authorized";
+        title = 'Configuration Error: Domain Not Authorized';
         description = `This is a Firebase security setting. Your app's domain must be authorized. Go to your Firebase Console -> Authentication -> Settings -> Authorized domains, and add this domain: ${window.location.hostname}`;
       } else if (error.code === 'auth/too-many-requests') {
-        title = "Too Many Attempts";
-        description = "You have requested an OTP too many times. Please wait a few minutes before trying again.";
+        title = 'Too Many Attempts';
+        description =
+          'You have requested an OTP too many times. Please wait a few minutes before trying again.';
       } else {
-         description = `Please check the phone number or try again. For testing, ensure it's added as a test number in your Firebase project. Error: ${error.code || 'UNKNOWN'}`;
+        description = `Please check the phone number or try again. For testing, ensure it's added as a test number in your Firebase project. Error: ${
+          error.code || 'UNKNOWN'
+        }`;
       }
 
-      toast({ 
-        variant: "destructive", 
-        title: title, 
+      toast({
+        variant: 'destructive',
+        title: title,
         description: description,
         duration: 15000,
       });
@@ -99,22 +124,25 @@ export function LoginForm() {
     }
   }
 
-  async function onVerifyOtp(values: { [key: string]: string }) {
+  async function onVerifyOtp(values: z.infer<typeof otpSchema>) {
     if (!confirmationResult) return;
     setIsSubmitting(true);
     try {
-      await confirmationResult.confirm(values[otpFieldName]);
-      toast({ title: "Login Successful!", description: "Redirecting to admin dashboard..." });
-      router.push("/admin");
-    } catch (error: any) {
-      console.error("Error verifying OTP:", error);
-      toast({ 
-        variant: "destructive", 
-        title: "Invalid OTP", 
-        description: "The OTP you entered is incorrect. Please try again.",
-        duration: 8000
+      await confirmationResult.confirm(values.otp_code);
+      toast({
+        title: 'Login Successful!',
+        description: 'Redirecting to admin dashboard...',
       });
-      otpForm.reset({ [otpFieldName]: "" });
+      router.push('/admin');
+    } catch (error: any) {
+      console.error('Error verifying OTP:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Invalid OTP',
+        description: 'The OTP you entered is incorrect. Please try again.',
+        duration: 8000,
+      });
+      otpForm.reset({ otp_code: '' });
     } finally {
       setIsSubmitting(false);
     }
@@ -126,12 +154,10 @@ export function LoginForm() {
         <form
           onSubmit={otpForm.handleSubmit(onVerifyOtp)}
           className="space-y-6"
-          // Add a key to force re-render, ensuring a clean state
-          key={otpFieldName}
         >
           <FormField
             control={otpForm.control}
-            name={otpFieldName}
+            name="otp_code"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Enter 6-Digit Code</FormLabel>
@@ -147,8 +173,9 @@ export function LoginForm() {
                   />
                 </FormControl>
                 <FormDescription>
-                   Please enter the 6-digit code sent to your phone.
-                   For test numbers, use the code from your Firebase console (e.g., 123456).
+                  Please enter the 6-digit code sent to your phone. For test
+                  numbers, use the code from your Firebase console (e.g.,
+                  123456).
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -175,14 +202,16 @@ export function LoginForm() {
               <FormControl>
                 <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <span className="text-muted-foreground sm:text-sm">+91</span>
+                    <span className="text-muted-foreground sm:text-sm">
+                      +91
+                    </span>
                   </div>
-                  <Input 
+                  <Input
                     type="tel"
-                    placeholder="9876543210" 
+                    placeholder="9876543210"
                     className="pl-12"
                     autoComplete="tel"
-                    {...field} 
+                    {...field}
                   />
                 </div>
               </FormControl>
