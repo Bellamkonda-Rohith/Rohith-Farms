@@ -13,16 +13,15 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 // Schema for the phone number input
 const phoneSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
 });
 
-// Schema for the OTP input. Using a unique name to avoid autofill conflicts.
+// Schema for the single OTP input field
 const otpSchema = z.object({
-  otp_code: z.string().length(6, "OTP must be 6 digits."),
+  otp_code: z.string().min(6, "OTP must be 6 digits.").max(6, "OTP must be 6 digits."),
 });
 
 export function LoginForm() {
@@ -57,9 +56,7 @@ export function LoginForm() {
   // It resets the form to clear any previous values or browser autofills.
   useEffect(() => {
     if (confirmationResult) {
-      setTimeout(() => {
-        otpForm.reset({ otp_code: "" });
-      }, 100);
+      otpForm.reset({ otp_code: "" });
     }
   }, [confirmationResult, otpForm]);
 
@@ -112,7 +109,6 @@ export function LoginForm() {
         description: "The OTP you entered is incorrect. Please try again.",
         duration: 8000
       });
-      // Reset form on error to allow user to re-enter the code
       otpForm.reset({ otp_code: "" });
     } finally {
       setIsSubmitting(false);
@@ -126,36 +122,27 @@ export function LoginForm() {
         <form
           onSubmit={otpForm.handleSubmit(onVerifyOtp)}
           className="space-y-6"
-          autoComplete="off"
         >
           <FormField
             control={otpForm.control}
             name="otp_code"
             render={({ field }) => (
-              <FormItem className="flex flex-col items-center justify-center text-center">
-                <FormLabel className="text-lg font-semibold">Enter Your Code</FormLabel>
+              <FormItem>
+                <FormLabel>Enter 6-Digit Code</FormLabel>
                 <FormControl>
-                  <InputOTP
-                    maxLength={6}
+                  <Input
                     {...field}
-                    autoComplete="new-password"
-                    pattern="\d{6}"
+                    type="tel"
                     inputMode="numeric"
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    placeholder="_ _ _ _ _ _"
+                    className="text-center text-2xl font-mono tracking-[0.5em]"
+                  />
                 </FormControl>
                 <FormDescription>
-                  Please enter the 6-digit code.
-                  <br />
-                  <span className="text-xs font-semibold">(For test numbers, use the code from your Firebase console, e.g., 123456)</span>
+                   Please enter the 6-digit code sent to your phone.
+                   For test numbers, use the code from your Firebase console (e.g., 123456).
                 </FormDescription>
                 <FormMessage />
               </FormItem>
