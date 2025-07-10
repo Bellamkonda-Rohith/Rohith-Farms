@@ -7,8 +7,6 @@ import { db } from './firebase';
 import type { AdminUser, Bird } from './types';
 import { deleteImage } from './storage';
 import { type BirdUrlFormData } from './schemas';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirebaseAdminApp } from './firebase-admin';
 
 export async function addBird(birdData: BirdUrlFormData) {
   try {
@@ -97,12 +95,19 @@ export async function deleteBird(bird: Bird) {
 
 export async function addAdminByPhone(phone: string) {
   try {
-    const app = getFirebaseAdminApp();
-    const auth = getAuth(app);
     const fullPhoneNumber = `+91${phone}`;
     
-    const userRecord = await auth.getUserByPhoneNumber(fullPhoneNumber);
-    const uid = userRecord.uid;
+    // Query the 'users' collection to find the user by phone number
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where("phoneNumber", "==", fullPhoneNumber));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return { success: false, message: 'No user found with this phone number. Please ensure they have logged in at least once.' };
+    }
+
+    const userDoc = querySnapshot.docs[0];
+    const uid = userDoc.id;
 
     const adminRef = doc(db, 'admins', uid);
     const adminDoc = await getDoc(adminRef);
@@ -122,9 +127,7 @@ export async function addAdminByPhone(phone: string) {
   } catch (error: any) {
     console.error('Error adding admin:', error);
     let message = 'Failed to add admin.';
-    if (error.code === 'auth/user-not-found') {
-      message = 'No user found with this phone number. Please ensure they have logged in at least once.';
-    } else if (error instanceof Error) {
+    if (error instanceof Error) {
       message = error.message;
     }
     return { success: false, message };
