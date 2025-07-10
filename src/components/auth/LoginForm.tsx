@@ -75,14 +75,13 @@ export function LoginForm() {
   useEffect(() => {
     if (confirmationResult) {
       setTimeout(() => {
-        otpForm.reset({ otp_code: "" });
         const input = document.querySelector(`input[name='otp_code']`) as HTMLInputElement | null;
         if (input) {
             input.focus();
         }
       }, 50);
     }
-  }, [confirmationResult, otpForm]);
+  }, [confirmationResult]);
 
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
@@ -154,6 +153,7 @@ export function LoginForm() {
         <form
           onSubmit={otpForm.handleSubmit(onVerifyOtp)}
           className="space-y-6"
+          autoComplete="off"
         >
           <FormField
             control={otpForm.control}
@@ -166,16 +166,14 @@ export function LoginForm() {
                     {...field}
                     type="tel"
                     inputMode="numeric"
-                    autoComplete="new-password"
+                    autoComplete="one-time-code"
                     maxLength={6}
                     placeholder="123456"
                     className="text-center text-2xl font-mono tracking-[0.2em]"
                   />
                 </FormControl>
                 <FormDescription>
-                  Please enter the 6-digit code sent to your phone. For test
-                  numbers, use the code from your Firebase console (e.g.,
-                  123456).
+                  Please enter the 6-digit code sent to your phone.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
