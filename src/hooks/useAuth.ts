@@ -11,7 +11,6 @@ async function getOrCreateUserProfile(user: User) {
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
-        // User profile doesn't exist, so create it.
         try {
             await setDoc(userRef, {
                 uid: user.uid,
@@ -27,19 +26,27 @@ async function getOrCreateUserProfile(user: User) {
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setIsAuthLoading(true);
       if (user) {
         await getOrCreateUserProfile(user);
+        const adminRef = doc(db, 'admins', user.uid);
+        const adminSnap = await getDoc(adminRef);
+        setIsAdmin(adminSnap.exists());
+        setUser(user);
+      } else {
+        setUser(null);
+        setIsAdmin(false);
       }
-      setUser(user);
-      setLoading(false);
+      setIsAuthLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  return { user, loading };
+  return { user, isAdmin, isAuthLoading };
 }
