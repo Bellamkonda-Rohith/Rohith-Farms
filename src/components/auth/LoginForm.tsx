@@ -106,7 +106,12 @@ export function LoginForm() {
       router.push("/admin");
     } catch (error: any) {
       console.error("Error verifying OTP:", error);
-      toast({ variant: "destructive", title: "Invalid OTP", description: "The OTP you entered is incorrect. Please try again." });
+      toast({ 
+        variant: "destructive", 
+        title: "Invalid OTP", 
+        description: "The OTP you entered is incorrect. Please try again.",
+        duration: 8000
+      });
       // Reset form on error to allow user to re-enter the code
       otpForm.reset({ otp_code: "" });
     } finally {
