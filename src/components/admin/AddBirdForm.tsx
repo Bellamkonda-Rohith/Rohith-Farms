@@ -22,18 +22,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { addBird } from '@/lib/admin-actions';
-import { birdSchema } from '@/lib/schemas';
+import { birdUrlSchema } from '@/lib/schemas';
 
-type BirdFormValues = z.infer<typeof birdSchema>;
+type BirdFormValues = z.infer<typeof birdUrlSchema>;
 
-const defaultValues: Partial<BirdFormValues> = {
+const defaultValues: BirdFormValues = {
   name: '',
   bloodline: '',
   traits: '',
   isAvailable: true,
+  imageUrl: '',
   videoUrl: '',
-  father: { name: '', videoUrl: '' },
-  mother: { name: '', videoUrl: '' },
+  father: { name: '', imageUrl: '', videoUrl: '' },
+  mother: { name: '', imageUrl: '', videoUrl: '' },
 };
 
 export function AddBirdForm() {
@@ -41,36 +42,16 @@ export function AddBirdForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<BirdFormValues>({
-    resolver: zodResolver(birdSchema),
+    resolver: zodResolver(birdUrlSchema),
     defaultValues,
     mode: 'onChange',
   });
 
   async function onSubmit(data: BirdFormValues) {
     setIsSubmitting(true);
-    const formData = new FormData();
-
-    formData.append('name', data.name);
-    formData.append('bloodline', data.bloodline);
-    formData.append('traits', data.traits);
-    formData.append('isAvailable', String(data.isAvailable));
-    formData.append('videoUrl', data.videoUrl || '');
-    formData.append('fatherName', data.father.name);
-    formData.append('fatherVideoUrl', data.father.videoUrl || '');
-    formData.append('motherName', data.mother.name);
-    formData.append('motherVideoUrl', data.mother.videoUrl || '');
-
-    if (data.imageUrl?.length > 0) {
-      formData.append('image', data.imageUrl[0]);
-    }
-    if (data.father.imageUrl?.length > 0) {
-        formData.append('fatherImage', data.father.imageUrl[0]);
-    }
-    if (data.mother.imageUrl?.length > 0) {
-        formData.append('motherImage', data.mother.imageUrl[0]);
-    }
-
-    const result = await addBird(formData);
+    
+    const result = await addBird(data);
+    
     setIsSubmitting(false);
 
     if (result.success) {
@@ -137,20 +118,13 @@ export function AddBirdForm() {
                 <FormField
                     control={form.control}
                     name="imageUrl"
-                    render={({ field: { onChange, onBlur, name, ref } }) => (
+                    render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Bird Image</FormLabel>
+                        <FormLabel>Bird Image URL</FormLabel>
                         <FormControl>
-                            <Input 
-                                type="file"
-                                accept="image/png, image/jpeg, image/webp"
-                                onChange={(e) => onChange(e.target.files)}
-                                onBlur={onBlur}
-                                name={name}
-                                ref={ref}
-                            />
+                           <Input placeholder="Paste Firebase Storage URL for the bird's image" {...field} />
                         </FormControl>
-                        <FormDescription>Upload the main bird image.</FormDescription>
+                        <FormDescription>Paste the public URL from Firebase Storage.</FormDescription>
                         <FormMessage />
                         </FormItem>
                     )}
@@ -206,18 +180,11 @@ export function AddBirdForm() {
                     <FormField
                         control={form.control}
                         name="father.imageUrl"
-                        render={({ field: { onChange, onBlur, name, ref } }) => (
+                        render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Father's Image</FormLabel>
+                            <FormLabel>Father's Image URL</FormLabel>
                             <FormControl>
-                                <Input 
-                                    type="file"
-                                    accept="image/png, image/jpeg, image/webp"
-                                    onChange={(e) => onChange(e.target.files)}
-                                    onBlur={onBlur}
-                                    name={name}
-                                    ref={ref}
-                                />
+                                <Input placeholder="Paste Firebase Storage URL for father's image" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -256,18 +223,11 @@ export function AddBirdForm() {
                     <FormField
                         control={form.control}
                         name="mother.imageUrl"
-                        render={({ field: { onChange, onBlur, name, ref } }) => (
+                        render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Mother's Image</FormLabel>
+                            <FormLabel>Mother's Image URL</FormLabel>
                             <FormControl>
-                                 <Input 
-                                    type="file"
-                                    accept="image/png, image/jpeg, image/webp"
-                                    onChange={(e) => onChange(e.target.files)}
-                                    onBlur={onBlur}
-                                    name={name}
-                                    ref={ref}
-                                 />
+                                 <Input placeholder="Paste Firebase Storage URL for mother's image" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
