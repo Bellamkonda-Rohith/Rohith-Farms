@@ -1,3 +1,4 @@
+
 export type ParentInfo = {
   name: string;
   imageUrl: string;
@@ -14,4 +15,9 @@ export type Bird = {
   videoUrl?: string; // YouTube embed URL
   father: ParentInfo;
   mother: ParentInfo;
+};
+
+export type AdminUser = {
+    uid: string;
+    phoneNumber: string;
 };
