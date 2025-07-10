@@ -4,7 +4,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from "firebase/auth";
@@ -30,16 +30,20 @@ export function LoginForm() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // By giving the OTP input a random name each time, we prevent the browser
+  // from associating it with the phone number and incorrectly autofilling.
+  const otpFieldName = useMemo(() => `otp_code_${Math.random().toString(36).substring(7)}`, [confirmationResult]);
+
   // Form for the phone number
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
     resolver: zodResolver(phoneSchema),
     defaultValues: { phone: "" },
   });
 
-  // Form for the OTP
-  const otpForm = useForm<z.infer<typeof otpSchema>>({
-    resolver: zodResolver(otpSchema),
-    defaultValues: { otp_code: "" },
+  // Form for the OTP - key change will force re-mount
+  const otpForm = useForm<{ [key: string]: string }>({
+    resolver: zodResolver(z.object({ [otpFieldName]: z.string().length(6, "Code must be 6 digits.") })),
+    defaultValues: { [otpFieldName]: "" },
   });
 
   // Initialize reCAPTCHA verifier
@@ -54,9 +58,17 @@ export function LoginForm() {
   
   useEffect(() => {
     if (confirmationResult) {
-      otpForm.reset({ otp_code: "" });
+      // Reset the form and focus the input after a short delay
+      // to ensure our changes happen after any browser autofill attempts.
+      setTimeout(() => {
+        otpForm.reset({ [otpFieldName]: "" });
+        const input = document.querySelector(`input[name='${otpFieldName}']`) as HTMLInputElement | null;
+        if (input) {
+            input.focus();
+        }
+      }, 50);
     }
-  }, [confirmationResult, otpForm]);
+  }, [confirmationResult, otpForm, otpFieldName]);
 
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
@@ -92,11 +104,11 @@ export function LoginForm() {
     }
   }
 
-  async function onVerifyOtp(values: z.infer<typeof otpSchema>) {
+  async function onVerifyOtp(values: { [key: string]: string }) {
     if (!confirmationResult) return;
     setIsSubmitting(true);
     try {
-      await confirmationResult.confirm(values.otp_code);
+      await confirmationResult.confirm(values[otpFieldName]);
       toast({ title: "Login Successful!", description: "Redirecting to admin dashboard..." });
       router.push("/admin");
     } catch (error: any) {
@@ -107,7 +119,7 @@ export function LoginForm() {
         description: "The OTP you entered is incorrect. Please try again.",
         duration: 8000
       });
-      otpForm.reset({ otp_code: "" });
+      otpForm.reset({ [otpFieldName]: "" });
     } finally {
       setIsSubmitting(false);
     }
@@ -119,10 +131,12 @@ export function LoginForm() {
         <form
           onSubmit={otpForm.handleSubmit(onVerifyOtp)}
           className="space-y-6"
+          // Add a key to force re-render, ensuring a clean state
+          key={otpFieldName}
         >
           <FormField
             control={otpForm.control}
-            name="otp_code"
+            name={otpFieldName}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Enter 6-Digit Code</FormLabel>
