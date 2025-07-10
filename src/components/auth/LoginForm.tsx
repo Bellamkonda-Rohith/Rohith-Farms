@@ -4,7 +4,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import {
@@ -33,9 +33,9 @@ const phoneSchema = z.object({
     .regex(/^\d{10}$/, 'Please enter a valid 10-digit mobile number.'),
 });
 
-const otpSchema = z.object({
-    otp_code: z.string().length(6, "Code must be 6 digits."),
-});
+// Base schema for OTP, we will add the dynamic field name later
+const otpBaseSchema = z.string().length(6, "Code must be 6 digits.");
+
 
 export function LoginForm() {
   const router = useRouter();
@@ -50,10 +50,19 @@ export function LoginForm() {
     defaultValues: { phone: '' },
   });
 
+  // Generate a random but stable name for the OTP field for the lifetime of the OTP form view
+  const otpFieldName = useMemo(() => `otp_code_${Math.random().toString(36).substring(2, 15)}`, [confirmationResult]);
+
+  const otpSchema = z.object({
+      [otpFieldName]: otpBaseSchema,
+  });
+
   // Form for the OTP
   const otpForm = useForm<z.infer<typeof otpSchema>>({
     resolver: zodResolver(otpSchema),
-    defaultValues: { otp_code: "" },
+    defaultValues: {
+      [otpFieldName]: "",
+    },
   });
 
   // Initialize reCAPTCHA verifier
@@ -75,13 +84,13 @@ export function LoginForm() {
   useEffect(() => {
     if (confirmationResult) {
       setTimeout(() => {
-        const input = document.querySelector(`input[name='otp_code']`) as HTMLInputElement | null;
+        const input = document.querySelector(`input[name='${otpFieldName}']`) as HTMLInputElement | null;
         if (input) {
             input.focus();
         }
-      }, 50);
+      }, 100); // A small delay to ensure the DOM is ready
     }
-  }, [confirmationResult]);
+  }, [confirmationResult, otpFieldName]);
 
   async function onSendOtp(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
@@ -127,7 +136,7 @@ export function LoginForm() {
     if (!confirmationResult) return;
     setIsSubmitting(true);
     try {
-      await confirmationResult.confirm(values.otp_code);
+      await confirmationResult.confirm(values[otpFieldName]);
       toast({
         title: 'Login Successful!',
         description: 'Redirecting to admin dashboard...',
@@ -141,7 +150,7 @@ export function LoginForm() {
         description: 'The OTP you entered is incorrect. Please try again.',
         duration: 8000,
       });
-      otpForm.reset({ otp_code: '' });
+      otpForm.reset({ [otpFieldName]: '' });
     } finally {
       setIsSubmitting(false);
     }
@@ -157,7 +166,7 @@ export function LoginForm() {
         >
           <FormField
             control={otpForm.control}
-            name="otp_code"
+            name={otpFieldName}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Enter 6-Digit Code</FormLabel>
