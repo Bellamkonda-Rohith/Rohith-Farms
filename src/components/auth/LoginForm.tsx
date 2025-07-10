@@ -166,7 +166,7 @@ export function LoginForm() {
                     {...field}
                     type="tel"
                     inputMode="numeric"
-                    autoComplete="one-time-code"
+                    autoComplete="new-password"
                     maxLength={6}
                     placeholder="123456"
                     className="text-center text-2xl font-mono tracking-[0.2em]"
