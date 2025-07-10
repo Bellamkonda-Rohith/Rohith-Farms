@@ -154,6 +154,12 @@ export function LoginForm() {
           className="space-y-6"
           autoComplete="off"
         >
+          <input
+            type="text"
+            autoComplete="tel"
+            name="dummy-phone"
+            className="hidden"
+          />
           <FormField
             control={otpForm.control}
             name="otp_code"
