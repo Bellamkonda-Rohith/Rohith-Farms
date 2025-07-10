@@ -22,7 +22,7 @@ const phoneSchema = z.object({
 
 // Schema for the OTP input. Using a unique name to avoid autofill conflicts.
 const otpSchema = z.object({
-  pin: z.string().length(6, "OTP must be 6 digits."),
+  otp_code: z.string().length(6, "OTP must be 6 digits."),
 });
 
 export function LoginForm() {
@@ -40,7 +40,7 @@ export function LoginForm() {
   // Form for the OTP
   const otpForm = useForm<z.infer<typeof otpSchema>>({
     resolver: zodResolver(otpSchema),
-    defaultValues: { pin: "" },
+    defaultValues: { otp_code: "" },
   });
 
   // Initialize reCAPTCHA verifier
@@ -58,7 +58,7 @@ export function LoginForm() {
   useEffect(() => {
     if (confirmationResult) {
       setTimeout(() => {
-        otpForm.reset({ pin: "" });
+        otpForm.reset({ otp_code: "" });
       }, 100);
     }
   }, [confirmationResult, otpForm]);
@@ -101,14 +101,14 @@ export function LoginForm() {
     if (!confirmationResult) return;
     setIsSubmitting(true);
     try {
-      await confirmationResult.confirm(values.pin);
+      await confirmationResult.confirm(values.otp_code);
       toast({ title: "Login Successful!", description: "Redirecting to admin dashboard..." });
       router.push("/admin");
     } catch (error: any) {
       console.error("Error verifying OTP:", error);
       toast({ variant: "destructive", title: "Invalid OTP", description: "The OTP you entered is incorrect. Please try again." });
       // Reset form on error to allow user to re-enter the code
-      otpForm.reset({ pin: "" });
+      otpForm.reset({ otp_code: "" });
     } finally {
       setIsSubmitting(false);
     }
@@ -125,7 +125,7 @@ export function LoginForm() {
         >
           <FormField
             control={otpForm.control}
-            name="pin"
+            name="otp_code"
             render={({ field }) => (
               <FormItem className="flex flex-col items-center justify-center text-center">
                 <FormLabel className="text-lg font-semibold">Enter Your Code</FormLabel>
