@@ -33,11 +33,11 @@ export function useAuth() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setIsAuthLoading(true);
       if (user) {
+        setUser(user);
         await getOrCreateUserProfile(user);
         const adminRef = doc(db, 'admins', user.uid);
         const adminSnap = await getDoc(adminRef);
         setIsAdmin(adminSnap.exists());
-        setUser(user);
       } else {
         setUser(null);
         setIsAdmin(false);
