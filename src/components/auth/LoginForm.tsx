@@ -20,7 +20,7 @@ const phoneSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
 });
 
-// Schema for the OTP input. Using a more unique name to avoid autofill conflicts.
+// Schema for the OTP input. Using a unique name to avoid autofill conflicts.
 const otpSchema = z.object({
   pin: z.string().length(6, "OTP must be 6 digits."),
 });
@@ -57,8 +57,6 @@ export function LoginForm() {
   // It resets the form to clear any previous values or browser autofills.
   useEffect(() => {
     if (confirmationResult) {
-      // Using a short timeout helps ensure this runs after the browser has had a chance
-      // to attempt an autofill, effectively overriding it.
       setTimeout(() => {
         otpForm.reset({ pin: "" });
       }, 100);
