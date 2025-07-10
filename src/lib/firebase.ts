@@ -1,5 +1,6 @@
+
 // Import the functions you need from the SDKs you need
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
@@ -21,11 +22,26 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let app: FirebaseApp;
+if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+} else {
+    app = getApp();
+}
+
 
 const db = getFirestore(app);
 const storage = getStorage(app);
 const auth = getAuth(app);
 
+// Export a promise that resolves when auth is initialized.
+const isFirebaseInitialized = () => {
+    return new Promise<void>(resolve => {
+        onAuthStateChanged(auth, () => {
+            resolve();
+        });
+    });
+};
 
-export { app, db, storage, auth };
+
+export { app, db, storage, auth, isFirebaseInitialized };
