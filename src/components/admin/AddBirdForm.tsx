@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +27,9 @@ import { birdSchema } from '@/lib/schemas';
 type BirdFormValues = z.infer<typeof birdSchema>;
 
 const defaultValues: Partial<BirdFormValues> = {
+  name: '',
+  bloodline: '',
+  traits: '',
   isAvailable: true,
   videoUrl: '',
   father: { name: '', videoUrl: '' },
@@ -263,7 +267,7 @@ export function AddBirdForm() {
                                     onBlur={onBlur}
                                     name={name}
                                     ref={ref}
-                                />
+                                 />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
