@@ -1,10 +1,10 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Bird } from './types';
-import { uploadImage } from './storage';
+import { uploadImage, deleteImage } from './storage';
 
 export async function addBird(formData: FormData) {
   try {
@@ -59,6 +59,7 @@ export async function addBird(formData: FormData) {
 
     await addDoc(collection(db, 'birds'), birdData);
     
+    revalidatePath('/admin');
     revalidatePath('/');
     revalidatePath('/birds');
     
@@ -71,4 +72,30 @@ export async function addBird(formData: FormData) {
     }
     return { success: false, message: errorMessage };
   }
+}
+
+
+export async function deleteBird(birdId: string, imagePaths: string[]) {
+    try {
+        // Delete the document from Firestore
+        await deleteDoc(doc(db, 'birds', birdId));
+
+        // Delete associated images from Storage
+        const deletePromises = imagePaths.map(path => deleteImage(path));
+        await Promise.all(deletePromises);
+        
+        revalidatePath('/admin');
+        revalidatePath('/');
+        revalidatePath('/birds');
+
+        return { success: true, message: 'Bird deleted successfully!' };
+
+    } catch (error) {
+        console.error('Error deleting bird:', error);
+        let errorMessage = 'Failed to delete bird.';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        return { success: false, message: errorMessage };
+    }
 }

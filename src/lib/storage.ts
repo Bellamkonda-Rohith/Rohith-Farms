@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes, deleteObject } from 'firebase/storage';
 import { storage } from './firebase';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -21,4 +21,18 @@ export async function uploadImage(file: File, folder: string): Promise<string> {
   const downloadURL = await getDownloadURL(storageRef);
 
   return downloadURL;
+}
+
+export async function deleteImage(imageUrl: string): Promise<void> {
+    try {
+        const storageRef = ref(storage, imageUrl);
+        await deleteObject(storageRef);
+    } catch (error: any) {
+        // It's okay if the file doesn't exist, we can ignore that error.
+        if (error.code !== 'storage/object-not-found') {
+            console.error(`Failed to delete image at ${imageUrl}:`, error);
+            // We don't rethrow because failing to delete an image shouldn't
+            // block the deletion of the Firestore document.
+        }
+    }
 }
