@@ -52,8 +52,6 @@ export function LoginForm() {
     }
   }, []);
   
-  // This useEffect will run when the OTP form is about to be displayed.
-  // It resets the form to clear any previous values or browser autofills.
   useEffect(() => {
     if (confirmationResult) {
       otpForm.reset({ otp_code: "" });
@@ -87,7 +85,7 @@ export function LoginForm() {
         variant: "destructive", 
         title: title, 
         description: description,
-        duration: 15000, // Keep toast visible for longer
+        duration: 15000,
       });
     } finally {
       setIsSubmitting(false);
@@ -115,7 +113,6 @@ export function LoginForm() {
     }
   }
 
-  // Render OTP verification form if confirmationResult is set
   if (confirmationResult) {
     return (
       <Form {...otpForm}>
@@ -134,10 +131,10 @@ export function LoginForm() {
                     {...field}
                     type="tel"
                     inputMode="numeric"
-                    autoComplete="one-time-code"
+                    autoComplete="new-password"
                     maxLength={6}
-                    placeholder="_ _ _ _ _ _"
-                    className="text-center text-2xl font-mono tracking-[0.5em]"
+                    placeholder="123456"
+                    className="text-center text-2xl font-mono tracking-[0.2em]"
                   />
                 </FormControl>
                 <FormDescription>
@@ -157,7 +154,6 @@ export function LoginForm() {
     );
   }
 
-  // Render phone number input form by default
   return (
     <Form {...phoneForm}>
       <form onSubmit={phoneForm.handleSubmit(onSendOtp)} className="space-y-6">
@@ -194,7 +190,6 @@ export function LoginForm() {
   );
 }
 
-// Extend window type for reCAPTCHA
 declare global {
   interface Window {
     recaptchaVerifier: RecaptchaVerifier;
