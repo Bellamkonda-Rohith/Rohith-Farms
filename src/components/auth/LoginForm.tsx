@@ -19,11 +19,6 @@ const phoneSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
 });
 
-// Schema for the single OTP input field
-const otpSchema = z.object({
-  otp_code: z.string().min(6, "OTP must be 6 digits.").max(6, "OTP must be 6 digits."),
-});
-
 export function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
@@ -40,10 +35,10 @@ export function LoginForm() {
     defaultValues: { phone: "" },
   });
 
-  // Form for the OTP - key change will force re-mount
+  // Form for the OTP
   const otpForm = useForm<{ [key: string]: string }>({
     resolver: zodResolver(z.object({ [otpFieldName]: z.string().length(6, "Code must be 6 digits.") })),
-    defaultValues: { [otpFieldName]: "" },
+    defaultValues: { [otpFieldName]: "" }, // Set default value here
   });
 
   // Initialize reCAPTCHA verifier
