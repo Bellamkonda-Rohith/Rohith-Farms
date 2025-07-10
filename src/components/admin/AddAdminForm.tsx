@@ -18,10 +18,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { addAdminByPhone } from '@/lib/admin-actions';
+import { addAdminByUid } from '@/lib/admin-actions';
 
 const adminSchema = z.object({
-  phone: z.string().regex(/^\d{10}$/, 'Please enter a valid 10-digit mobile number.'),
+  uid: z.string().min(1, 'Please enter a valid User ID (UID).'),
 });
 
 type AdminFormValues = z.infer<typeof adminSchema>;
@@ -32,14 +32,14 @@ export function AddAdminForm() {
 
   const form = useForm<AdminFormValues>({
     resolver: zodResolver(adminSchema),
-    defaultValues: { phone: '' },
+    defaultValues: { uid: '' },
     mode: 'onChange',
   });
 
   async function onSubmit(data: AdminFormValues) {
     setIsSubmitting(true);
     
-    const result = await addAdminByPhone(data.phone);
+    const result = await addAdminByUid(data.uid);
     
     setIsSubmitting(false);
 
@@ -63,24 +63,15 @@ export function AddAdminForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-end gap-4">
         <FormField
           control={form.control}
-          name="phone"
+          name="uid"
           render={({ field }) => (
             <FormItem className="flex-grow">
-              <FormLabel>Admin Phone Number</FormLabel>
+              <FormLabel>Admin User ID (UID)</FormLabel>
               <FormControl>
-                 <div className="relative">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <span className="text-muted-foreground sm:text-sm">
-                      +91
-                    </span>
-                  </div>
                   <Input
-                    type="tel"
-                    placeholder="9876543210"
-                    className="pl-12"
+                    placeholder="Enter the UID of the user to make admin"
                     {...field}
                   />
-                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

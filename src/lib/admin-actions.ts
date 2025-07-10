@@ -85,35 +85,35 @@ export async function deleteBird(bird: Bird) {
 
 // --- Admin User Management ---
 
-export async function addAdminByPhone(phone: string) {
+export async function addAdminByUid(uid: string) {
   try {
-    const fullPhoneNumber = `+91${phone}`;
-    
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where("phoneNumber", "==", fullPhoneNumber));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      return { success: false, message: 'No user found with this phone number. Please ensure they have logged in at least once.' };
+    if (!uid || uid.trim().length === 0) {
+      return { success: false, message: 'A valid User ID (UID) is required.' };
     }
+    
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
 
-    const userDoc = querySnapshot.docs[0];
-    const uid = userDoc.id;
+    if (!userSnap.exists()) {
+      return { success: false, message: 'No user found with this UID. Please ensure the user has logged in at least once.' };
+    }
 
     const adminRef = doc(db, 'admins', uid);
-    const adminDoc = await getDoc(adminRef);
+    const adminSnap = await getDoc(adminRef);
 
-    if (adminDoc.exists()) {
-      return { success: false, message: 'User is already an admin.' };
+    if (adminSnap.exists()) {
+      return { success: false, message: 'This user is already an admin.' };
     }
+    
+    const userData = userSnap.data();
 
     await setDoc(adminRef, {
-      phoneNumber: fullPhoneNumber,
+      phoneNumber: userData?.phoneNumber || 'N/A',
       addedAt: new Date().toISOString(),
     });
 
     revalidatePath('/admin/users');
-    return { success: true, message: `Admin added successfully for ${fullPhoneNumber}.` };
+    return { success: true, message: `Admin added successfully for user ${uid}.` };
 
   } catch (error: any) {
     console.error('Error adding admin:', error);

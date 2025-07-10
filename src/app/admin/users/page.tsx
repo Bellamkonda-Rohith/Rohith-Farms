@@ -12,7 +12,7 @@ export default async function AdminUsersPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Add New Admin</CardTitle>
-                <CardDescription>Enter the phone number of the user you want to grant admin privileges to.</CardDescription>
+                <CardDescription>Enter the User ID (UID) of the user you want to grant admin privileges to. You can find the UID in your Firebase Authentication console after the user has logged in at least once.</CardDescription>
             </CardHeader>
             <CardContent>
                 <AddAdminForm />
