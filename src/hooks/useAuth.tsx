@@ -44,11 +44,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUserProfile(userSnap.data() as UserProfile);
             setLoading(false);
           } else {
+            // User exists in Auth, but not in Firestore. Create the profile.
             try {
               const newUserProfile: UserProfile = {
                 uid: user.uid,
                 phoneNumber: user.phoneNumber || '',
-                isAdmin: false, 
+                isAdmin: false, // Default isAdmin to false
                 createdAt: serverTimestamp() as any,
               };
               await setDoc(userRef, newUserProfile);
@@ -57,6 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               // in the next snapshot trigger.
             } catch (error) {
               console.error("Firebase error creating user profile:", error);
+              // If creation fails, log out the user to prevent an inconsistent state
               setUser(null);
               setUserProfile(null);
               setLoading(false);
@@ -70,6 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
       } else {
+        // No user is logged in
         setUser(null);
         setUserProfile(null);
         setLoading(false);
