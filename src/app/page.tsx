@@ -32,7 +32,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
+      <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden flex flex-col justify-end items-center pb-8">
         <video
           autoPlay
           loop
@@ -44,11 +44,7 @@ export default function Home() {
           Your browser does not support the video tag.
         </video>
         <div className="absolute z-10 inset-0 bg-black/40"></div>
-      </section>
-
-      {/* Call to Action Section */}
-      <section className="bg-black text-white py-8 px-4 text-center">
-        <div className="container mx-auto flex flex-col items-center gap-4">
+        <div className="z-20 flex flex-col items-center gap-4">
            <Button asChild variant="outline" size="lg" className="bg-transparent border-white/80 text-white hover:bg-white hover:text-black">
               <Link href="/birds">
                 View Our Collection
