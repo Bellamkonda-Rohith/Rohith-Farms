@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu, Feather, LogOut, Shield, Loader2, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -102,6 +102,8 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <SheetDescription className="sr-only">Main navigation links for the website.</SheetDescription>
               <div className="p-6 flex flex-col h-full">
                 <Link href="/" className="flex items-center gap-2 mb-8" onClick={() => setSheetOpen(false)}>
                   <Feather className="h-6 w-6 text-primary" />
