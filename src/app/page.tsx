@@ -27,15 +27,28 @@ export default function Home() {
     loadBirds();
   }, []);
 
+  const introVideoUrl = "https://firebasestorage.googleapis.com/v0/b/rohith-farms.firebasestorage.app/o/Rohith%20Farms%20intro%20vedio.mp4?alt=media&token=ed4919a8-3850-475f-af1d-d7cfd1d9c820";
+
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-primary/10 text-center py-20 px-4">
-        <div className="container mx-auto">
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-primary mb-4">
+      <section className="relative h-[60vh] flex items-center justify-center text-center overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute z-0 w-full h-full object-cover"
+        >
+          <source src={introVideoUrl} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div className="absolute z-10 inset-0 bg-black/50"></div>
+        <div className="container mx-auto relative z-20 px-4">
+          <h1 className="text-4xl md:text-6xl font-serif font-bold text-white mb-4">
             Rohith Game Farm
           </h1>
-          <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             Breeding powerful, healthy, and honest bloodlines for the passionate fancier.
           </p>
         </div>
