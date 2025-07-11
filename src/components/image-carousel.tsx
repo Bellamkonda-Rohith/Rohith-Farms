@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/carousel";
 
 interface ImageCarouselProps {
-  images: string[];
-  videos: string[];
+  images?: string[];
+  videos?: string[];
 }
 
-export function ImageCarousel({ images, videos }: ImageCarouselProps) {
+export function ImageCarousel({ images = [], videos = [] }: ImageCarouselProps) {
   const media = [
     ...images.map(src => ({ type: 'image', src })),
     ...videos.map(src => ({ type: 'video', src })),

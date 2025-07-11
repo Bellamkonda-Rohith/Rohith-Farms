@@ -1,7 +1,7 @@
 
 'use client';
 
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,14 +11,17 @@ import type { Bird } from '@/lib/types';
 import { getBirdById } from '@/lib/birds';
 import { useEffect, useState } from 'react';
 
-export default function BirdDetailPage({ params }: { params: { id: string } }) {
+export default function BirdDetailPage() {
+  const params = useParams();
+  const birdId = params.id as string;
   const [bird, setBird] = useState<Bird | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!birdId) return;
     async function loadBird() {
       try {
-        const fetchedBird = await getBirdById(params.id);
+        const fetchedBird = await getBirdById(birdId);
         if (fetchedBird) {
           setBird(fetchedBird);
         } else {
@@ -32,7 +35,7 @@ export default function BirdDetailPage({ params }: { params: { id: string } }) {
       }
     }
     loadBird();
-  }, [params.id]);
+  }, [birdId]);
   
   if (loading) {
     return (
@@ -57,7 +60,7 @@ export default function BirdDetailPage({ params }: { params: { id: string } }) {
         <div>
           <h1 className="text-3xl lg:text-4xl font-bold font-serif mb-2">{bird.name}</h1>
           <p className="text-sm text-muted-foreground mb-4">ID: {bird.id}</p>
-          <ImageCarousel images={bird.images} videos={bird.videos} />
+          <ImageCarousel images={bird.images || []} videos={bird.videos || []} />
         </div>
 
         {/* Bird Details Section */}
@@ -111,7 +114,7 @@ export default function BirdDetailPage({ params }: { params: { id: string } }) {
               <CardTitle>Father (Sire)</CardTitle>
             </CardHeader>
             <CardContent>
-              <ImageCarousel images={bird.parents.father.images} videos={bird.parents.father.videos} />
+              <ImageCarousel images={bird.parents?.father?.images || []} videos={bird.parents?.father?.videos || []} />
             </CardContent>
           </Card>
 
@@ -121,7 +124,7 @@ export default function BirdDetailPage({ params }: { params: { id: string } }) {
               <CardTitle>Mother (Dam)</CardTitle>
             </CardHeader>
             <CardContent>
-              <ImageCarousel images={bird.parents.mother.images} videos={bird.parents.mother.videos} />
+              <ImageCarousel images={bird.parents?.mother?.images || []} videos={bird.parents?.mother?.videos || []} />
             </CardContent>
           </Card>
         </div>
@@ -129,4 +132,3 @@ export default function BirdDetailPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
-
