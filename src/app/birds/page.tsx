@@ -32,7 +32,7 @@ export default function BirdsForSalePage() {
           Birds for Sale
         </h1>
         <p className="mt-4 max-w-2xl mx-auto text-xl text-muted-foreground">
-          Browse our collection of high-quality gamefowl.
+          Browse our collection of high-quality game birds.
         </p>
       </div>
 

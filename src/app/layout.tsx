@@ -13,7 +13,7 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif"
 
 export const metadata: Metadata = {
   title: "Rohith Farms",
-  description: "High-quality gamefowl breeding and sales.",
+  description: "High-quality game birds breeding and sales.",
 };
 
 export default function RootLayout({

@@ -6,7 +6,7 @@ import { Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 export default function ContactPage() {
   const farmLocation = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d122421.12788937016!2d80.5510659725838!3d16.51019183533568!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a35eff9482d944b%3A0x51748321c7e467b6!2sVijayawada%2C%20Andhra%20Pradesh!5e0!3m2!1sen!2sin!4v1719253456306!5m2!1sen!2sin";
   const phoneNumber = process.env.NEXT_PUBLIC_CONTACT_PHONE_NUMBER || '+910000000000';
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent("Hi, I would like to inquire about your gamefowl.")}`;
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent("Hi, I would like to inquire about your game birds.")}`;
   const callUrl = `tel:${phoneNumber}`;
 
   return (

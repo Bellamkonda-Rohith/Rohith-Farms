@@ -9,7 +9,7 @@ interface WhatsAppButtonProps {
 }
 
 export function WhatsAppButton({ phoneNumber, message }: WhatsAppButtonProps) {
-    const defaultMessage = "Hello, I'm interested in your gamefowl.";
+    const defaultMessage = "Hello, I'm interested in your game birds.";
     const encodedMessage = encodeURIComponent(message || defaultMessage);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 

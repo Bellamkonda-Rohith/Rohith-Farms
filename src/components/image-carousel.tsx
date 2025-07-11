@@ -53,7 +53,7 @@ export function ImageCarousel({ images = [], videos = [] }: ImageCarouselProps) 
                     width={800}
                     height={600}
                     className="w-full h-full object-cover"
-                    data-ai-hint="gamefowl rooster"
+                    data-ai-hint="game bird rooster"
                   />
                 ) : (
                   <video

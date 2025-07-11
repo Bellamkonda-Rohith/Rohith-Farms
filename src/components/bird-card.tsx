@@ -24,7 +24,7 @@ export function BirdCard({ bird }: BirdCardProps) {
             width={400}
             height={300}
             className="w-full h-48 object-cover"
-            data-ai-hint="gamefowl rooster"
+            data-ai-hint="game bird rooster"
           />
         </Link>
         {bird.availability === 'Sold' && (
