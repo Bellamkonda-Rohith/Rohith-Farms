@@ -1,11 +1,31 @@
+
+'use client';
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BirdCard } from "@/components/bird-card";
-import { getFeaturedBirds } from "@/data/birds";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { Bird } from "@/lib/types";
+import { getFeaturedBirds } from "@/lib/birds";
 
 export default function Home() {
-  const featuredBirds = getFeaturedBirds();
+  const [featuredBirds, setFeaturedBirds] = useState<Bird[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadBirds() {
+      try {
+        const birds = await getFeaturedBirds();
+        setFeaturedBirds(birds);
+      } catch (error) {
+        console.error("Failed to fetch featured birds:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadBirds();
+  }, []);
 
   return (
     <div>
@@ -25,11 +45,17 @@ export default function Home() {
       <section className="py-16 px-4">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-8">Featured Birds</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredBirds.map((bird) => (
-              <BirdCard key={bird.id} bird={bird} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-48">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredBirds.map((bird) => (
+                <BirdCard key={bird.id} bird={bird} />
+              ))}
+            </div>
+          )}
           <div className="text-center mt-12">
             <Button asChild size="lg">
               <Link href="/birds">

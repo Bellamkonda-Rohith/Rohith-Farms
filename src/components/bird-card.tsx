@@ -1,9 +1,10 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import type { Bird } from '@/data/birds';
+import type { Bird } from '@/lib/types';
 import { ArrowRight } from 'lucide-react';
 
 interface BirdCardProps {
@@ -11,12 +12,14 @@ interface BirdCardProps {
 }
 
 export function BirdCard({ bird }: BirdCardProps) {
+  const firstImage = bird.images && bird.images.length > 0 ? bird.images[0] : 'https://placehold.co/400x300.png';
+
   return (
     <Card className="flex flex-col h-full overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
       <CardHeader className="p-0 relative">
         <Link href={`/birds/${bird.id}`} className="block">
           <Image
-            src={bird.images[0]}
+            src={firstImage}
             alt={bird.name}
             width={400}
             height={300}

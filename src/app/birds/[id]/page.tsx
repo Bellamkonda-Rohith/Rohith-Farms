@@ -1,17 +1,49 @@
-import { getBirdById } from '@/data/birds';
+
+'use client';
+
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Phone, MessageCircle } from 'lucide-react';
+import { Phone, MessageCircle, Loader2 } from 'lucide-react';
 import { ImageCarousel } from '@/components/image-carousel';
+import type { Bird } from '@/lib/types';
+import { getBirdById } from '@/lib/birds';
+import { useEffect, useState } from 'react';
 
 export default function BirdDetailPage({ params }: { params: { id: string } }) {
-  const bird = getBirdById(params.id);
+  const [bird, setBird] = useState<Bird | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadBird() {
+      try {
+        const fetchedBird = await getBirdById(params.id);
+        if (fetchedBird) {
+          setBird(fetchedBird);
+        } else {
+          notFound();
+        }
+      } catch (error) {
+        console.error("Failed to fetch bird:", error);
+        notFound();
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadBird();
+  }, [params.id]);
+  
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 flex justify-center items-center min-h-[60vh]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!bird) {
-    notFound();
+    return notFound();
   }
 
   const whatsappMessage = `Hi, I’m interested in the bird ${bird.name} (${bird.id}).`;
@@ -97,3 +129,4 @@ export default function BirdDetailPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+
