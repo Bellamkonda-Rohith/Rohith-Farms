@@ -16,10 +16,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, UploadCloud, X } from 'lucide-react';
+import { Loader2, UploadCloud, X, Copy } from 'lucide-react';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
 
@@ -171,14 +171,17 @@ export default function EditBirdPage() {
   const onSubmit = async (data: BirdFormData) => {
     setSaving(true);
     try {
+      let finalId = birdId;
       if (isNew) {
         const newDocRef = await addDoc(collection(db, 'birds'), { ...data, createdAt: serverTimestamp() });
         toast({ title: 'Success', description: 'New bird has been added.' });
-        router.push(`/admin/edit/${newDocRef.id}`); // Redirect to edit page of the new bird
+        finalId = newDocRef.id;
+        router.push(`/admin/edit/${finalId}`); // Redirect to edit page of the new bird
       } else {
         await setDoc(doc(db, 'birds', birdId), data, { merge: true });
         toast({ title: 'Success', description: 'Bird details have been updated.' });
       }
+      // Consider if navigation is always desired after save, or only on new creation
       router.push('/admin');
     } catch (error) {
       console.error('Error saving bird:', error);
@@ -195,6 +198,11 @@ export default function EditBirdPage() {
         
         const isImage = field.includes('images');
 
+        const copyToClipboard = (text: string) => {
+            navigator.clipboard.writeText(text);
+            toast({ title: "Copied!", description: "Firebase URL copied to clipboard." });
+        };
+
         return (
             <FormItem>
               <FormLabel>{fieldName}</FormLabel>
@@ -210,24 +218,48 @@ export default function EditBirdPage() {
                       }
                     }}
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                    disabled={isNew}
                   />
+                  {isNew && <FormDescription>You must save the bird before you can upload media.</FormDescription>}
+                   <FormDescription className="mt-2">
+                    Upload {isImage ? 'images' : 'videos'}. Live Firebase Storage links will appear below each item after upload.
+                  </FormDescription>
+
                   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {files.map((url, index) => (
-                      <div key={index} className="relative group">
-                        {isImage ? (
-                          <Image src={url} alt={`${fieldName} ${index + 1}`} width={150} height={150} className="rounded-md object-cover w-full aspect-square" />
-                        ) : (
-                          <video src={url} controls className="rounded-md w-full aspect-square" />
-                        )}
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => handleRemoveMedia(url, field)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                      <div key={index} className="relative group space-y-2">
+                        <div className="relative">
+                            {isImage ? (
+                              <Image src={url} alt={`${fieldName} ${index + 1}`} width={150} height={150} className="rounded-md object-cover w-full aspect-square" />
+                            ) : (
+                              <video src={url} controls className="rounded-md w-full aspect-square" />
+                            )}
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleRemoveMedia(url, field)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <div className="flex items-center gap-1">
+                           <Input 
+                            readOnly 
+                            value={url} 
+                            className="text-xs h-8 truncate bg-muted"
+                           />
+                           <Button 
+                             type="button" 
+                             size="icon" 
+                             variant="ghost" 
+                             className="h-8 w-8 flex-shrink-0"
+                             onClick={() => copyToClipboard(url)}
+                           >
+                             <Copy className="h-4 w-4"/>
+                           </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
