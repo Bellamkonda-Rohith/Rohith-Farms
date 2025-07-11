@@ -23,17 +23,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, authLoading } = useAuth();
   
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // If auth check is done and user is logged in, redirect them.
     if (!authLoading && user) {
       if (isAdmin) {
-        router.push('/admin'); // Admins go to the dashboard
+        router.push('/admin');
       } else {
-        router.push('/'); // Non-admins go to the homepage
+        router.push('/');
       }
     }
   }, [user, isAdmin, authLoading, router]);
@@ -85,17 +84,15 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await confirmationResult.confirm(otp);
-      // The useEffect will handle redirection.
       toast({ title: "Login Successful", description: "Redirecting..." });
+      // The useEffect will handle the final redirection.
     } catch (error) {
       console.error("Error verifying OTP:", error);
       toast({ variant: "destructive", title: "Login Failed", description: "The OTP is incorrect. Please try again." });
       setLoading(false);
     } 
-    // Do not set loading to false here, to prevent screen flash before redirect.
   };
 
-  // Show a loading spinner while checking auth status
   if (authLoading || user) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -111,7 +108,7 @@ export default function LoginPage() {
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
             {confirmationResult ? 'Enter the OTP sent to your phone' : 'Enter your phone number to receive an OTP'}
-          </Card-Description>
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {!confirmationResult ? (
