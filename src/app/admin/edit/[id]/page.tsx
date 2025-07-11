@@ -199,7 +199,7 @@ export default function EditBirdPage() {
             <FormItem>
               <FormLabel>{fieldName}</FormLabel>
               <FormControl>
-                <>
+                <div>
                   <Input
                     type="file"
                     accept={isImage ? "image/*" : "video/*"}
@@ -231,7 +231,7 @@ export default function EditBirdPage() {
                       </div>
                     ))}
                   </div>
-                </>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
