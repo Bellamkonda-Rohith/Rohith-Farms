@@ -25,9 +25,10 @@ import {
 import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { AdminAuthGuard } from '@/hooks/useAuth';
 
 
-export default function AdminDashboardPage() {
+function AdminDashboard() {
   const [birds, setBirds] = useState<Bird[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -192,4 +193,12 @@ export default function AdminDashboardPage() {
 
     </div>
   );
+}
+
+export default function AdminDashboardPage() {
+  return (
+    <AdminAuthGuard>
+      <AdminDashboard />
+    </AdminAuthGuard>
+  )
 }
