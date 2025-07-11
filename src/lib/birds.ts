@@ -20,6 +20,7 @@ const fromFirestore = (doc: any): Bird => {
         isFeatured: data.isFeatured,
         images: data.images || [],
         videos: data.videos || [],
+        skills: data.skills || [],
         parents: data.parents || { father: { images: [], videos: [] }, mother: { images: [], videos: [] } },
         createdAt: data.createdAt,
     };

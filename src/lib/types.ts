@@ -23,6 +23,7 @@ export interface Bird {
       videos: string[];
     };
   };
+  skills?: string[];
   createdAt: Timestamp;
 }
 

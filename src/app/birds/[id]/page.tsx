@@ -5,7 +5,7 @@ import { notFound, useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Phone, MessageCircle, Loader2 } from 'lucide-react';
+import { Phone, MessageCircle, Loader2, Sparkles } from 'lucide-react';
 import { ImageCarousel } from '@/components/image-carousel';
 import type { Bird } from '@/lib/types';
 import { getBirdById } from '@/lib/birds';
@@ -82,6 +82,21 @@ export default function BirdDetailPage() {
                 <div><strong>Color:</strong> {bird.color}</div>
                 <div><strong>Line:</strong> {bird.line}</div>
               </div>
+
+              {bird.skills && bird.skills.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-base mb-2 flex items-center">
+                    <Sparkles className="h-4 w-4 mr-2 text-accent" />
+                    Skills & Characteristics
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {bird.skills.map((skill) => (
+                      <Badge key={skill} variant="secondary">{skill}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <strong>Price:</strong>
                 <span className="text-primary font-bold text-lg ml-2">

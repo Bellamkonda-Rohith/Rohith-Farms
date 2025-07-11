@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
@@ -15,11 +15,11 @@ import type { Bird } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, UploadCloud, X, Copy, Plus } from 'lucide-react';
+import { Loader2, UploadCloud, X, Copy, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
 
@@ -35,6 +35,7 @@ const birdSchema = z.object({
   isFeatured: z.boolean().default(false),
   images: z.array(z.string().url()).optional(),
   videos: z.array(z.string().url()).optional(),
+  skills: z.array(z.string()).optional(),
   parents: z.object({
     father: z.object({
       images: z.array(z.string().url()).optional(),
@@ -70,6 +71,7 @@ export default function EditBirdPage() {
     'parents.mother.images': useRef<HTMLInputElement>(null),
     'parents.mother.videos': useRef<HTMLInputElement>(null),
   };
+  const [newSkill, setNewSkill] = useState("");
 
   const form = useForm<BirdFormData>({
     resolver: zodResolver(birdSchema),
@@ -84,12 +86,36 @@ export default function EditBirdPage() {
       isFeatured: false,
       images: [],
       videos: [],
+      skills: [],
       parents: {
         father: { images: [], videos: [] },
         mother: { images: [], videos: [] },
       },
     },
   });
+
+  const { fields: skillsFields, append: appendSkill, remove: removeSkill } = useFieldArray({
+    control: form.control,
+    name: "skills" as any, // Cast to any to avoid type issues with complex nested objects
+  });
+
+  const handleAddSkill = () => {
+    if (newSkill.trim()) {
+        const currentSkills = form.getValues('skills') || [];
+        if (!currentSkills.includes(newSkill.trim())) {
+             form.setValue('skills', [...currentSkills, newSkill.trim()]);
+             setNewSkill("");
+        } else {
+             toast({ variant: 'destructive', title: 'Duplicate Skill', description: 'This skill has already been added.' });
+        }
+    }
+  };
+
+  const handleRemoveSkill = (index: number) => {
+    const currentSkills = form.getValues('skills') || [];
+    form.setValue('skills', currentSkills.filter((_, i) => i !== index));
+  };
+
 
   useEffect(() => {
     if (!isNew) {
@@ -104,6 +130,7 @@ export default function EditBirdPage() {
               price: birdData.price || 0,
               images: birdData.images || [],
               videos: birdData.videos || [],
+              skills: birdData.skills || [],
               parents: birdData.parents || { father: { images: [], videos: [] }, mother: { images: [], videos: [] } },
             });
           } else {
@@ -345,6 +372,43 @@ export default function EditBirdPage() {
               <FormField name="isFeatured" control={form.control} render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Feature on homepage</FormLabel></div></FormItem>)} />
             </CardContent>
           </Card>
+          
+          <Card>
+            <CardHeader>
+                <CardTitle>Bird Skills</CardTitle>
+                <CardDescription>Add skills or special characteristics of the bird.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex gap-2">
+                    <Input
+                        value={newSkill}
+                        onChange={(e) => setNewSkill(e.target.value)}
+                        placeholder="e.g., High-flyer, Strong legs"
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddSkill(); } }}
+                    />
+                    <Button type="button" onClick={handleAddSkill}>
+                        <Plus className="mr-2 h-4 w-4" /> Add Skill
+                    </Button>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                    {(form.watch('skills') || []).map((skill, index) => (
+                        <div key={index} className="flex items-center gap-1 bg-muted px-3 py-1 rounded-full">
+                           <span>{skill}</span>
+                           <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 w-5 rounded-full"
+                                onClick={() => handleRemoveSkill(index)}
+                           >
+                                <X className="h-3 w-3" />
+                           </Button>
+                        </div>
+                    ))}
+                </div>
+                <FormField name="skills" control={form.control} render={({ field }) => (<FormItem><FormMessage /></FormItem>)} />
+            </CardContent>
+          </Card>
 
           <Card>
              <CardHeader><CardTitle>Bird Media</CardTitle></CardHeader>
@@ -396,5 +460,3 @@ export default function EditBirdPage() {
     </div>
   );
 }
-
-    
