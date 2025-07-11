@@ -25,16 +25,20 @@ import {
 import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { AdminAuthGuard } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 
-function AdminDashboard() {
+export default function AdminDashboardPage() {
   const [birds, setBirds] = useState<Bird[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [birdToDelete, setBirdToDelete] = useState<Bird | null>(null);
   const { toast } = useToast();
+  const { isAdmin, loading: authLoading } = useAuth();
+  const router = useRouter();
+
 
   const fetchBirds = async () => {
     try {
@@ -51,8 +55,13 @@ function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchBirds();
-  }, []);
+    if (!authLoading && !isAdmin) {
+      router.push('/admin/login');
+    }
+    if(!authLoading && isAdmin) {
+        fetchBirds();
+    }
+  }, [authLoading, isAdmin, router]);
 
   const handleDeleteBird = async () => {
     if (!birdToDelete) return;
@@ -76,6 +85,14 @@ function AdminDashboard() {
       setIsDeleting(false);
     }
   };
+  
+  if (authLoading || loading) {
+     return (
+       <div className="flex justify-center items-center h-screen">
+         <Loader2 className="h-12 w-12 animate-spin text-primary" />
+       </div>
+     );
+  }
 
   return (
     <div className="container mx-auto py-8">
@@ -193,12 +210,4 @@ function AdminDashboard() {
 
     </div>
   );
-}
-
-export default function AdminDashboardPage() {
-  return (
-    <AdminAuthGuard>
-      <AdminDashboard />
-    </AdminAuthGuard>
-  )
 }
