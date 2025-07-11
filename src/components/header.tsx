@@ -66,7 +66,7 @@ export function Header() {
              <Button asChild variant="outline" size="sm">
                 <Link href="/admin/login">
                     <Shield className="mr-2 h-4 w-4"/>
-                    Admin Login
+                    Login
                 </Link>
             </Button>
           )}
@@ -101,7 +101,7 @@ export function Header() {
                       </Button>
                     </>
                   ) : (
-                    <NavLink href="/admin/login" label="Admin Login" isMobile />
+                    <NavLink href="/admin/login" label="Login" isMobile />
                   )}
                 </div>
               </div>
