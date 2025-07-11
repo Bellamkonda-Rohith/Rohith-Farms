@@ -24,30 +24,36 @@ export default function AdminLoginPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { user, isAdmin, loading: authLoading } = useAuth();
+  
+  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
+
+  useEffect(() => {
+    if (!auth) return;
+    
+    if (!window.recaptchaVerifier) {
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          'size': 'invisible',
+          'callback': (response: any) => {
+              console.log("Recaptcha solved");
+          }
+      });
+      window.recaptchaVerifier = verifier;
+      setRecaptchaVerifier(verifier);
+    } else {
+      setRecaptchaVerifier(window.recaptchaVerifier);
+    }
+    
+    return () => {
+      // This doesn't seem to have a clear() method on the instance itself
+      // window.recaptchaVerifier?.clear();
+    };
+  }, []);
 
   useEffect(() => {
     if (!authLoading && user && isAdmin) {
       router.push('/admin');
     }
   }, [user, isAdmin, authLoading, router]);
-
-  // Setup reCAPTCHA
-  useEffect(() => {
-    if (!auth) return;
-    
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response: any) => {
-            console.log("Recaptcha solved");
-        }
-    });
-    
-    return () => {
-      window.recaptchaVerifier.clear();
-    };
-
-  }, [auth]);
-
 
   const handleSendOtp = async () => {
     if (!phoneNumber || !/^\+[1-9]\d{1,14}$/.test(phoneNumber)) {
@@ -59,7 +65,7 @@ export default function AdminLoginPage() {
       return;
     }
     
-    if (!window.recaptchaVerifier) {
+    if (!recaptchaVerifier) {
         toast({
             variant: "destructive",
             title: "Recaptcha not ready",
@@ -70,8 +76,7 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      const verifier = window.recaptchaVerifier;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
       setConfirmationResult(result);
       toast({
         title: "OTP Sent",
@@ -115,7 +120,7 @@ export default function AdminLoginPage() {
         title: "Login Successful",
         description: "Redirecting to admin dashboard...",
       });
-      router.push('/admin');
+      router.push('/admin'); // This line ensures redirection
     } catch (error) {
       console.error("Error verifying OTP:", error);
       toast({
@@ -127,6 +132,14 @@ export default function AdminLoginPage() {
       setLoading(false);
     }
   };
+
+  if (authLoading && !user) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
@@ -152,7 +165,7 @@ export default function AdminLoginPage() {
                   disabled={loading}
                 />
               </div>
-              <Button type="button" className="w-full" onClick={handleSendOtp} disabled={loading || !window.recaptchaVerifier}>
+              <Button type="button" className="w-full" onClick={handleSendOtp} disabled={loading || !recaptchaVerifier}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Phone className="mr-2 h-4 w-4" />}
                 Send OTP
               </Button>
