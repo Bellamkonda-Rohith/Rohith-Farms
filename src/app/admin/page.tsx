@@ -55,11 +55,12 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    if (!authLoading && !isAdmin) {
-      router.push('/admin/login');
-    }
-    if(!authLoading && isAdmin) {
+    if (!authLoading) {
+      if (!isAdmin) {
+        router.push('/admin/login');
+      } else {
         fetchBirds();
+      }
     }
   }, [authLoading, isAdmin, router]);
 

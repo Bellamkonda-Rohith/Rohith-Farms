@@ -21,33 +21,31 @@ export default function AdminLoginPage() {
   const [otp, setOtp] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [recaptcha, setRecaptcha] = useState<RecaptchaVerifier | null>(null);
   const { toast } = useToast();
   const router = useRouter();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    // If user is already logged in and is an admin, redirect to dashboard
-    if (user && isAdmin) {
+    if (!authLoading && user && isAdmin) {
       router.push('/admin');
     }
-  }, [user, isAdmin, router]);
+  }, [user, isAdmin, authLoading, router]);
 
-  // Setup reCAPTCHA on mount
+  // Setup reCAPTCHA
   useEffect(() => {
     if (!auth) return;
-    try {
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': (response: any) => {
-                // reCAPTCHA solved, allow signInWithPhoneNumber.
-                console.log("Recaptcha solved");
-            }
-        });
-        setRecaptcha(verifier);
-    } catch(e) {
-        console.error("RecaptchaVerifier error", e)
-    }
+    
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+            console.log("Recaptcha solved");
+        }
+    });
+    
+    return () => {
+      window.recaptchaVerifier.clear();
+    };
+
   }, [auth]);
 
 
@@ -61,7 +59,7 @@ export default function AdminLoginPage() {
       return;
     }
     
-    if (!recaptcha) {
+    if (!window.recaptchaVerifier) {
         toast({
             variant: "destructive",
             title: "Recaptcha not ready",
@@ -72,7 +70,8 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptcha);
+      const verifier = window.recaptchaVerifier;
+      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
       setConfirmationResult(result);
       toast({
         title: "OTP Sent",
@@ -153,7 +152,7 @@ export default function AdminLoginPage() {
                   disabled={loading}
                 />
               </div>
-              <Button type="button" className="w-full" onClick={handleSendOtp} disabled={loading || !recaptcha}>
+              <Button type="button" className="w-full" onClick={handleSendOtp} disabled={loading || !window.recaptchaVerifier}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Phone className="mr-2 h-4 w-4" />}
                 Send OTP
               </Button>
