@@ -61,10 +61,11 @@ export function ImageCarousel({ images = [], videos = [] }: ImageCarouselProps) 
       </CarouselContent>
       {media.length > 1 && (
           <>
-            <CarouselPrevious className="hidden sm:flex" />
-            <CarouselNext className="hidden sm:flex" />
+            <CarouselPrevious />
+            <CarouselNext />
           </>
       )}
     </Carousel>
   );
 }
+
