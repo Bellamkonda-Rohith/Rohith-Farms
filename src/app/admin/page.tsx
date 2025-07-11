@@ -36,7 +36,7 @@ export default function AdminDashboardPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [birdToDelete, setBirdToDelete] = useState<Bird | null>(null);
   const { toast } = useToast();
-  const { isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const router = useRouter();
 
 
@@ -55,14 +55,17 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
+    // Wait until the authentication check is complete
     if (!authLoading) {
-      if (!isAdmin) {
+      // If the user is not an admin, redirect to login
+      if (!user || !isAdmin) {
         router.push('/admin/login');
       } else {
+        // If the user is an admin, fetch the birds
         fetchBirds();
       }
     }
-  }, [authLoading, isAdmin, router]);
+  }, [user, authLoading, isAdmin, router]);
 
   const handleDeleteBird = async () => {
     if (!birdToDelete) return;
@@ -94,6 +97,11 @@ export default function AdminDashboardPage() {
        </div>
      );
   }
+  
+  // This check is important to prevent rendering the dashboard for non-admins before the redirect happens.
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto py-8">
@@ -112,18 +120,13 @@ export default function AdminDashboardPage() {
           <CardTitle>Bird Inventory</CardTitle>
         </CardHeader>
         <CardContent>
-          {loading && (
-            <div className="flex justify-center items-center py-10">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          )}
           {error && (
             <div className="text-center py-10 text-red-600">
               <AlertTriangle className="mx-auto h-8 w-8 mb-2" />
               <p>{error}</p>
             </div>
           )}
-          {!loading && !error && (
+          {!error && (
             <Table>
               <TableHeader>
                 <TableRow>

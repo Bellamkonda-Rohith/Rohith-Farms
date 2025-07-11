@@ -29,6 +29,7 @@ export default function AdminLoginPage() {
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // If auth is not loading and the user is an admin, redirect them to the dashboard
     if (!authLoading && user && isAdmin) {
       router.push('/admin');
     }
@@ -106,7 +107,8 @@ export default function AdminLoginPage() {
         description: "Redirecting to admin dashboard...",
       });
       router.push('/admin');
-    } catch (error) {
+    } catch (error)
+     {
       console.error("Error verifying OTP:", error);
       toast({
         variant: "destructive",
@@ -118,12 +120,23 @@ export default function AdminLoginPage() {
     }
   };
 
+  // Show a loading spinner while checking auth status, but only if there's no user yet.
+  // This prevents a screen flash for already-logged-in admins.
   if (authLoading && !user) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
+  }
+  
+  // Don't render the login form if we know the user is an admin (the useEffect will redirect them)
+  if (user && isAdmin) {
+      return (
+        <div className="flex justify-center items-center h-screen">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      );
   }
 
   return (
