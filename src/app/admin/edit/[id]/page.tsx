@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, UploadCloud, X, Copy } from 'lucide-react';
+import { Loader2, UploadCloud, X, Copy, Plus } from 'lucide-react';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
 
@@ -33,16 +33,16 @@ const birdSchema = z.object({
   price: z.coerce.number().min(0).optional(),
   availability: z.enum(['Available', 'Sold']),
   isFeatured: z.boolean().default(false),
-  images: z.array(z.string()).optional(),
-  videos: z.array(z.string()).optional(),
+  images: z.array(z.string().url()).optional(),
+  videos: z.array(z.string().url()).optional(),
   parents: z.object({
     father: z.object({
-      images: z.array(z.string()).optional(),
-      videos: z.array(z.string()).optional(),
+      images: z.array(z.string().url()).optional(),
+      videos: z.array(z.string().url()).optional(),
     }),
     mother: z.object({
-      images: z.array(z.string()).optional(),
-      videos: z.array(z.string()).optional(),
+      images: z.array(z.string().url()).optional(),
+      videos: z.array(z.string().url()).optional(),
     }),
   }),
 });
@@ -62,6 +62,14 @@ export default function EditBirdPage() {
   const { toast } = useToast();
   
   const [uploads, setUploads] = useState<Record<string, number>>({});
+  const urlInputRefs = {
+    'images': useRef<HTMLInputElement>(null),
+    'videos': useRef<HTMLInputElement>(null),
+    'parents.father.images': useRef<HTMLInputElement>(null),
+    'parents.father.videos': useRef<HTMLInputElement>(null),
+    'parents.mother.images': useRef<HTMLInputElement>(null),
+    'parents.mother.videos': useRef<HTMLInputElement>(null),
+  };
 
   const form = useForm<BirdFormData>({
     resolver: zodResolver(birdSchema),
@@ -114,8 +122,12 @@ export default function EditBirdPage() {
   }, [birdId, isNew, form, router, toast]);
 
   const handleFileUpload = (file: File, field: UploadableField) => {
+    if (isNew) {
+      toast({ variant: 'destructive', title: 'Save First', description: 'Please save the bird before uploading media.' });
+      return;
+    }
     const uniqueFileName = `${Date.now()}-${file.name}`;
-    const storageRef = ref(storage, `birds/${birdId}/${field}/${uniqueFileName}`);
+    const storageRef = ref(storage, `birds/${birdId}/${field.replace('.','/')}/${uniqueFileName}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on('state_changed',
@@ -134,14 +146,7 @@ export default function EditBirdPage() {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          if (field.includes('.')) {
-              const [parent, child, type] = field.split('.') as ['parents', 'father' | 'mother', 'images' | 'videos'];
-              const currentParentMedia = form.getValues(`${parent}.${child}.${type}`) || [];
-              form.setValue(`${parent}.${child}.${type}`, [...currentParentMedia, downloadURL]);
-          } else {
-              const currentMedia = form.getValues(field as 'images' | 'videos') || [];
-              form.setValue(field as 'images' | 'videos', [...currentMedia, downloadURL]);
-          }
+          addMediaUrl(downloadURL, field);
            setUploads(prev => {
               const newUploads = { ...prev };
               delete newUploads[uniqueFileName];
@@ -153,9 +158,43 @@ export default function EditBirdPage() {
     );
   };
   
+  const addMediaUrl = (url: string, field: UploadableField) => {
+    try {
+        // Simple validation for URL format
+        new URL(url);
+    } catch (_) {
+        toast({ variant: 'destructive', title: 'Invalid URL', description: 'Please enter a valid URL.' });
+        return;
+    }
+
+    if (field.includes('.')) {
+        const [parent, child, type] = field.split('.') as ['parents', 'father' | 'mother', 'images' | 'videos'];
+        const currentParentMedia = form.getValues(`${parent}.${child}.${type}`) || [];
+        form.setValue(`${parent}.${child}.${type}`, [...currentParentMedia, url]);
+    } else {
+        const currentMedia = form.getValues(field as 'images' | 'videos') || [];
+        form.setValue(field as 'images' | 'videos', [...currentMedia, url]);
+    }
+  };
+
+  const handleAddUrl = (field: UploadableField) => {
+    const inputRef = urlInputRefs[field];
+    if (inputRef.current?.value) {
+      addMediaUrl(inputRef.current.value, field);
+      inputRef.current.value = ''; // Clear input after adding
+    }
+  };
+
   const handleRemoveMedia = (url: string, field: UploadableField) => {
-    const storageRef = ref(storage, url);
-    deleteObject(storageRef).catch(err => console.error("Could not delete file from storage", err));
+    // We only try to delete from storage if it's a firebase storage URL.
+    if (url.includes('firebasestorage.googleapis.com')) {
+      try {
+        const storageRef = ref(storage, url);
+        deleteObject(storageRef).catch(err => console.warn("Could not delete file from storage, it might not exist.", err));
+      } catch (error) {
+        console.warn("Could not create storage reference from URL, it might be an external link.", error);
+      }
+    }
     
     if (field.includes('.')) {
         const [parent, child, type] = field.split('.') as ['parents', 'father' | 'mother', 'images' | 'videos'];
@@ -171,18 +210,15 @@ export default function EditBirdPage() {
   const onSubmit = async (data: BirdFormData) => {
     setSaving(true);
     try {
-      let finalId = birdId;
       if (isNew) {
         const newDocRef = await addDoc(collection(db, 'birds'), { ...data, createdAt: serverTimestamp() });
         toast({ title: 'Success', description: 'New bird has been added.' });
-        finalId = newDocRef.id;
-        router.push(`/admin/edit/${finalId}`); // Redirect to edit page of the new bird
+        router.push(`/admin/edit/${newDocRef.id}`); // Redirect to edit page of the new bird
       } else {
         await setDoc(doc(db, 'birds', birdId), data, { merge: true });
         toast({ title: 'Success', description: 'Bird details have been updated.' });
+        router.push('/admin');
       }
-      // Consider if navigation is always desired after save, or only on new creation
-      router.push('/admin');
     } catch (error) {
       console.error('Error saving bird:', error);
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to save bird details.' });
@@ -200,7 +236,7 @@ export default function EditBirdPage() {
 
         const copyToClipboard = (text: string) => {
             navigator.clipboard.writeText(text);
-            toast({ title: "Copied!", description: "Firebase URL copied to clipboard." });
+            toast({ title: "Copied!", description: "URL copied to clipboard." });
         };
 
         return (
@@ -208,22 +244,35 @@ export default function EditBirdPage() {
               <FormLabel>{fieldName}</FormLabel>
               <FormControl>
                 <div>
-                  <Input
-                    type="file"
-                    accept={isImage ? "image/*" : "video/*"}
-                    multiple
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        Array.from(e.target.files).forEach(file => handleFileUpload(file, field));
+                  <div className="flex gap-2">
+                    <Input
+                      ref={urlInputRefs[field]}
+                      type="text"
+                      placeholder={`Paste ${isImage ? 'image' : 'video'} URL here`}
+                      className="flex-grow"
+                    />
+                    <Button type="button" onClick={() => handleAddUrl(field)}>
+                      <Plus className="mr-2 h-4 w-4" /> Add URL
+                    </Button>
+                  </div>
+                   <FormDescription className="mt-2">
+                    Add a single URL above, or drag & drop a file to upload.
+                    {isNew && <strong> Save the bird first to enable uploads.</strong>}
+                  </FormDescription>
+
+                  <div 
+                    className="mt-4 p-4 border-2 border-dashed rounded-lg text-center bg-muted/50"
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (e.dataTransfer.files) {
+                        Array.from(e.dataTransfer.files).forEach(file => handleFileUpload(file, field));
                       }
                     }}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                    disabled={isNew}
-                  />
-                  {isNew && <FormDescription>You must save the bird before you can upload media.</FormDescription>}
-                   <FormDescription className="mt-2">
-                    Upload {isImage ? 'images' : 'videos'}. Live Firebase Storage links will appear below each item after upload.
-                  </FormDescription>
+                    onDragOver={(e) => e.preventDefault()}
+                  >
+                    <UploadCloud className="mx-auto h-8 w-8 text-muted-foreground" />
+                    <p className="mt-2 text-sm text-muted-foreground">Drag & Drop files here to upload</p>
+                  </div>
 
                   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {files.map((url, index) => (
@@ -347,3 +396,5 @@ export default function EditBirdPage() {
     </div>
   );
 }
+
+    
