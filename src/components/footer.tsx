@@ -28,7 +28,7 @@ export function Footer() {
             <ul className="space-y-3 text-muted-foreground">
               <li className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
-                <span>Coimbatore, Tamil Nadu</span>
+                <span>Vijayawada, Andhra Pradesh</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-5 w-5" />

@@ -45,7 +45,7 @@ export default function ContactPage() {
               <MapPin className="w-6 h-6 text-primary" />
               <div className="flex-grow">
                 <h3 className="font-semibold">Location</h3>
-                <p>Coimbatore, Tamil Nadu, India</p>
+                <p>Vijayawada, Andhra Pradesh, India</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
