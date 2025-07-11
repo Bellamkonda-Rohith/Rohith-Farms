@@ -49,9 +49,10 @@ export default function BirdDetailPage() {
     return notFound();
   }
 
+  const contactNumber = process.env.NEXT_PUBLIC_CONTACT_PHONE_NUMBER || '+910000000000';
   const whatsappMessage = `Hi, I’m interested in the bird ${bird.name} (${bird.id}).`;
-  const whatsappUrl = `https://wa.me/+910000000000?text=${encodeURIComponent(whatsappMessage)}`;
-  const callUrl = `tel:+910000000000`;
+  const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const callUrl = `tel:${contactNumber}`;
 
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">

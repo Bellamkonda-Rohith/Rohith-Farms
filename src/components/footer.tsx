@@ -1,7 +1,12 @@
+
 import Link from 'next/link';
 import { Phone, MessageCircle, MapPin } from 'lucide-react';
 
 export function Footer() {
+  const contactNumber = process.env.NEXT_PUBLIC_CONTACT_PHONE_NUMBER || '+910000000000';
+  const whatsappUrl = `https://wa.me/${contactNumber}`;
+  const callUrl = `tel:${contactNumber}`;
+  
   return (
     <footer className="bg-secondary/20 border-t">
       <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -27,11 +32,11 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-5 w-5" />
-                <a href="tel:+910000000000" className="hover:text-primary">+91 00000 00000</a>
+                <a href={callUrl} className="hover:text-primary">{contactNumber}</a>
               </li>
               <li className="flex items-center gap-2">
                 <MessageCircle className="h-5 w-5" />
-                 <a href="https://wa.me/+910000000000" target="_blank" rel="noopener noreferrer" className="hover:text-primary">WhatsApp</a>
+                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="hover:text-primary">WhatsApp</a>
               </li>
             </ul>
           </div>

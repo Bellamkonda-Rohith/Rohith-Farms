@@ -21,6 +21,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const contactNumber = process.env.NEXT_PUBLIC_CONTACT_PHONE_NUMBER || '+910000000000';
+  
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="font-sans">
@@ -30,7 +32,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
-          <WhatsAppButton phoneNumber="+910000000000" />
+          <WhatsAppButton phoneNumber={contactNumber} />
           <Toaster />
         </AuthProvider>
       </body>
