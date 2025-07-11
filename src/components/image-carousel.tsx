@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -10,6 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 interface ImageCarouselProps {
   images?: string[];
@@ -22,6 +24,10 @@ export function ImageCarousel({ images = [], videos = [] }: ImageCarouselProps) 
     ...videos.map(src => ({ type: 'video', src })),
   ];
 
+  const plugin = React.useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: true, stopOnMouseEnter: true })
+  );
+
   if (media.length === 0) {
     return (
        <Card className="aspect-video flex items-center justify-center bg-muted">
@@ -31,7 +37,10 @@ export function ImageCarousel({ images = [], videos = [] }: ImageCarouselProps) 
   }
   
   return (
-    <Carousel className="w-full">
+    <Carousel 
+      className="w-full"
+      plugins={[plugin.current]}
+    >
       <CarouselContent>
         {media.map((item, index) => (
           <CarouselItem key={index}>
@@ -61,11 +70,10 @@ export function ImageCarousel({ images = [], videos = [] }: ImageCarouselProps) 
       </CarouselContent>
       {media.length > 1 && (
           <>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="absolute left-2" />
+            <CarouselNext className="absolute right-2" />
           </>
       )}
     </Carousel>
   );
 }
-
