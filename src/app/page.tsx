@@ -45,12 +45,7 @@ export default function Home() {
         </video>
         <div className="absolute z-10 inset-0 bg-black/50"></div>
         <div className="container mx-auto relative z-20 px-4">
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-white mb-4">
-            Rohith Game Farm
-          </h1>
-          <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-            Breeding powerful, healthy, and honest bloodlines for the passionate fancier.
-          </p>
+          {/* Text removed as per request */}
         </div>
       </section>
 
