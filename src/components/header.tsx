@@ -20,7 +20,7 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname();
   const [isSheetOpen, setSheetOpen] = useState(false);
-  const { user, loading, signOutUser } = useAuth();
+  const { user, loading, signOutUser, isAdmin } = useAuth();
 
   const NavLink = ({ href, label, isMobile = false, onClick }: { href: string; label: string; isMobile?: boolean, onClick?: () => void }) => (
     <Link
@@ -49,7 +49,7 @@ export function Header() {
     if (user) {
       return (
         <>
-          <NavLink href="/admin" label="Admin" isMobile={isMobile} />
+          {isAdmin && <NavLink href="/admin" label="Admin" isMobile={isMobile} />}
           <Button
             variant={isMobile ? 'outline' : 'ghost'}
             size={isMobile ? 'default' : 'sm'}

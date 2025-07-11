@@ -40,32 +40,32 @@ export default function AdminDashboardPage() {
   const router = useRouter();
 
 
-  const fetchBirds = async () => {
-    try {
-      setLoading(true);
-      const allBirds = await getBirds();
-      setBirds(allBirds);
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to fetch birds. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     // Wait until the authentication check is complete
     if (!authLoading) {
-      // If the user is not an admin, redirect to login
-      if (!user || !isAdmin) {
+      // If the user is not an admin, redirect to login page.
+      if (!isAdmin) {
         router.push('/admin/login');
-      } else {
-        // If the user is an admin, fetch the birds
-        fetchBirds();
+        return;
       }
+      
+      // If the user is an admin, fetch the birds
+      const fetchBirds = async () => {
+        try {
+          setLoading(true);
+          const allBirds = await getBirds();
+          setBirds(allBirds);
+          setError(null);
+        } catch (err) {
+          console.error(err);
+          setError('Failed to fetch birds. Please try again later.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchBirds();
     }
-  }, [user, authLoading, isAdmin, router]);
+  }, [authLoading, isAdmin, router]);
 
   const handleDeleteBird = async () => {
     if (!birdToDelete) return;
@@ -76,8 +76,8 @@ export default function AdminDashboardPage() {
         title: "Success",
         description: `Bird "${birdToDelete.name}" has been deleted.`,
       });
+      setBirds(prevBirds => prevBirds.filter(b => b.id !== birdToDelete.id)); // Optimistic update
       setBirdToDelete(null);
-      fetchBirds(); // Refresh the list
     } catch (error) {
       console.error("Error deleting bird: ", error);
       toast({
@@ -90,7 +90,8 @@ export default function AdminDashboardPage() {
     }
   };
   
-  if (authLoading || loading) {
+  // While checking auth or loading data, show a spinner.
+  if (authLoading || (isAdmin && loading)) {
      return (
        <div className="flex justify-center items-center h-screen">
          <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -98,7 +99,7 @@ export default function AdminDashboardPage() {
      );
   }
   
-  // This check is important to prevent rendering the dashboard for non-admins before the redirect happens.
+  // This check prevents rendering the dashboard for non-admins before the redirect can happen.
   if (!isAdmin) {
     return null;
   }
