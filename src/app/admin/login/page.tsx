@@ -32,7 +32,7 @@ const setupRecaptcha = () => {
 
 
 export default function AdminLoginPage() {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('+91');
   const [otp, setOtp] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -49,7 +49,9 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     // Set up recaptcha on mount
-    (window as any).recaptchaVerifier = setupRecaptcha();
+    if (typeof window !== 'undefined') {
+      (window as any).recaptchaVerifier = setupRecaptcha();
+    }
   }, []);
 
   const handleSendOtp = async () => {
@@ -93,9 +95,18 @@ export default function AdminLoginPage() {
       return;
     }
 
+    if (!confirmationResult) {
+      toast({
+        variant: "destructive",
+        title: "Verification Failed",
+        description: "OTP confirmation result not found. Please try sending the OTP again.",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      await confirmationResult?.confirm(otp);
+      await confirmationResult.confirm(otp);
       toast({
         title: "Login Successful",
         description: "Redirecting to admin dashboard...",
