@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, Feather, LogOut, Shield, Loader2 } from 'lucide-react';
+import { Menu, Feather, LogOut, Shield, Loader2, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -48,12 +48,12 @@ export function Header() {
 
     if (user) {
       return (
-        <>
+        <div className={cn("flex items-center gap-4", isMobile && "flex-col w-full mt-4")}>
           {isAdmin && <NavLink href="/admin" label="Admin" isMobile={isMobile} />}
           <Button
             variant={isMobile ? 'outline' : 'ghost'}
             size={isMobile ? 'default' : 'sm'}
-            className={isMobile ? 'w-full mt-4' : ''}
+            className={isMobile ? 'w-full' : ''}
             onClick={() => {
               setSheetOpen(false);
               signOutUser();
@@ -62,15 +62,15 @@ export function Header() {
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
-        </>
+        </div>
       );
     }
 
     return (
        <Button asChild variant="outline" size="sm">
-          <Link href="/admin/login">
-              <Shield className="mr-2 h-4 w-4"/>
-              Admin Login
+          <Link href="/login">
+              <LogIn className="mr-2 h-4 w-4"/>
+              Login
           </Link>
       </Button>
     );

@@ -31,12 +31,12 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminDashboardPage() {
   const [birds, setBirds] = useState<Bird[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [birdToDelete, setBirdToDelete] = useState<Bird | null>(null);
   const { toast } = useToast();
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { isAdmin, loading: authLoading } = useAuth();
   const router = useRouter();
 
 
@@ -45,14 +45,14 @@ export default function AdminDashboardPage() {
     if (!authLoading) {
       // If the user is not an admin, redirect to login page.
       if (!isAdmin) {
-        router.push('/admin/login');
+        router.push('/login');
         return;
       }
       
       // If the user is an admin, fetch the birds
       const fetchBirds = async () => {
         try {
-          setLoading(true);
+          setLoadingData(true);
           const allBirds = await getBirds();
           setBirds(allBirds);
           setError(null);
@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
           console.error(err);
           setError('Failed to fetch birds. Please try again later.');
         } finally {
-          setLoading(false);
+          setLoadingData(false);
         }
       };
       fetchBirds();
@@ -90,8 +90,8 @@ export default function AdminDashboardPage() {
     }
   };
   
-  // While checking auth or loading data, show a spinner.
-  if (authLoading || (isAdmin && loading)) {
+  // While checking auth or loading initial data, show a full-screen spinner.
+  if (authLoading || (isAdmin && loadingData)) {
      return (
        <div className="flex justify-center items-center h-screen">
          <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
   
   // This check prevents rendering the dashboard for non-admins before the redirect can happen.
   if (!isAdmin) {
-    return null;
+    return null; // or a redirection component
   }
 
   return (

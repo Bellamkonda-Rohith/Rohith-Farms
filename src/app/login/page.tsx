@@ -12,11 +12,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Phone } from 'lucide-react';
+import { Loader2, Phone, LogIn } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 
-export default function AdminLoginPage() {
+export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState('+91');
   const [otp, setOtp] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
@@ -25,26 +25,18 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const { user, isAdmin, loading: authLoading } = useAuth();
   
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // If auth is not loading and the user is an admin, redirect them to the dashboard
-    if (!authLoading && user && isAdmin) {
-      router.push('/admin');
+    // If auth check is done and user is logged in, redirect them.
+    if (!authLoading && user) {
+      if (isAdmin) {
+        router.push('/admin'); // Admins go to the dashboard
+      } else {
+        router.push('/'); // Non-admins go to the homepage
+      }
     }
   }, [user, isAdmin, authLoading, router]);
-
-  const setupRecaptcha = () => {
-    if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
-        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-            'size': 'invisible',
-            'callback': () => {
-                // reCAPTCHA solved, allow sign in
-            }
-        });
-    }
-  };
 
   const handleSendOtp = async () => {
     if (!phoneNumber || !/^\+[1-9]\d{1,14}$/.test(phoneNumber)) {
@@ -58,11 +50,10 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      setupRecaptcha();
-      if (!recaptchaVerifierRef.current) {
-        throw new Error("reCAPTCHA verifier not initialized.");
-      }
-      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifierRef.current);
+        const recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current!, {
+            'size': 'invisible',
+        });
+      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
       setConfirmationResult(result);
       toast({
         title: "OTP Sent",
@@ -73,7 +64,7 @@ export default function AdminLoginPage() {
       toast({
         variant: "destructive",
         title: "Failed to send OTP",
-        description: "Please check the number or Firebase project setup.",
+        description: "Please check the number or try again.",
       });
     } finally {
       setLoading(false);
@@ -82,71 +73,45 @@ export default function AdminLoginPage() {
 
   const handleVerifyOtp = async () => {
     if (!otp || otp.length !== 6) {
-      toast({
-        variant: "destructive",
-        title: "Invalid OTP",
-        description: "Please enter the 6-digit OTP.",
-      });
+      toast({ variant: "destructive", title: "Invalid OTP", description: "Please enter the 6-digit OTP." });
       return;
     }
 
     if (!confirmationResult) {
-      toast({
-        variant: "destructive",
-        title: "Verification Failed",
-        description: "OTP confirmation result not found. Please try sending the OTP again.",
-      });
+      toast({ variant: "destructive", title: "Verification Failed", description: "Please try sending the OTP again." });
       return;
     }
 
     setLoading(true);
     try {
       await confirmationResult.confirm(otp);
-      toast({
-        title: "Login Successful",
-        description: "Redirecting to admin dashboard...",
-      });
-      router.push('/admin');
-    } catch (error)
-     {
+      // The useEffect will handle redirection.
+      toast({ title: "Login Successful", description: "Redirecting..." });
+    } catch (error) {
       console.error("Error verifying OTP:", error);
-      toast({
-        variant: "destructive",
-        title: "Login Failed",
-        description: "The OTP is incorrect. Please try again.",
-      });
-    } finally {
+      toast({ variant: "destructive", title: "Login Failed", description: "The OTP is incorrect. Please try again." });
       setLoading(false);
-    }
+    } 
+    // Do not set loading to false here, to prevent screen flash before redirect.
   };
 
-  // Show a loading spinner while checking auth status, but only if there's no user yet.
-  // This prevents a screen flash for already-logged-in admins.
-  if (authLoading && !user) {
+  // Show a loading spinner while checking auth status
+  if (authLoading || user) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }
-  
-  // Don't render the login form if we know the user is an admin (the useEffect will redirect them)
-  if (user && isAdmin) {
-      return (
-        <div className="flex justify-center items-center h-screen">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
-      );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader>
-          <CardTitle className="text-2xl">Admin Login</CardTitle>
+          <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
             {confirmationResult ? 'Enter the OTP sent to your phone' : 'Enter your phone number to receive an OTP'}
-          </CardDescription>
+          </Card-Description>
         </CardHeader>
         <CardContent>
           {!confirmationResult ? (
@@ -184,7 +149,7 @@ export default function AdminLoginPage() {
                 </InputOTP>
               </div>
               <Button type="button" className="w-full" onClick={handleVerifyOtp} disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
                 Verify OTP and Login
               </Button>
                <Button variant="link" size="sm" onClick={() => setConfirmationResult(null)} disabled={loading}>
