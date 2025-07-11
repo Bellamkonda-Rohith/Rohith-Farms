@@ -3,10 +3,9 @@
 
 import React, { useState, useEffect, useContext, createContext } from 'react';
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot, type Unsubscribe } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { UserProfile } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
@@ -26,39 +25,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeFromProfile: Unsubscribe | undefined;
+
+    const unsubscribeFromAuth = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
+      
+      // If a user profile listener is active, unsubscribe from it
+      if (unsubscribeFromProfile) {
+        unsubscribeFromProfile();
+        unsubscribeFromProfile = undefined;
+      }
+      
       if (user) {
         setUser(user);
         const userRef = doc(db, 'users', user.uid);
-        try {
-          const userSnap = await getDoc(userRef);
+        
+        // Set up a real-time listener for the user's profile
+        unsubscribeFromProfile = onSnapshot(userRef, async (userSnap) => {
           if (userSnap.exists()) {
             setUserProfile(userSnap.data() as UserProfile);
           } else {
-            // Create user profile if it doesn't exist
-            const newUserProfile: UserProfile = {
-              uid: user.uid,
-              phoneNumber: user.phoneNumber || '',
-              isAdmin: false, // Default to not admin
-              createdAt: serverTimestamp() as any,
-            };
-            await setDoc(userRef, newUserProfile);
-            setUserProfile(newUserProfile);
+            // If the profile doesn't exist, create it. This usually happens on first login.
+            try {
+              const newUserProfile: UserProfile = {
+                uid: user.uid,
+                phoneNumber: user.phoneNumber || '',
+                isAdmin: false, // Default to not admin
+                createdAt: serverTimestamp() as any,
+              };
+              await setDoc(userRef, newUserProfile);
+              // The snapshot listener will automatically pick up the newly created profile.
+            } catch (error) {
+              console.error("Firebase error creating user profile:", error);
+              setUser(null);
+              setUserProfile(null);
+            }
           }
-        } catch (error) {
-           console.error("Firebase error checking/creating user profile:", error);
-           setUser(null);
-           setUserProfile(null);
-        }
+          setLoading(false);
+        }, (error) => {
+          console.error("Error with profile listener:", error);
+          setUser(null);
+          setUserProfile(null);
+          setLoading(false);
+        });
+
       } else {
+        // No user is logged in
         setUser(null);
         setUserProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    // Cleanup function: unsubscribe from both auth and profile listeners when the component unmounts
+    return () => {
+      unsubscribeFromAuth();
+      if (unsubscribeFromProfile) {
+        unsubscribeFromProfile();
+      }
+    };
   }, []);
 
   const signOutUser = async () => {
