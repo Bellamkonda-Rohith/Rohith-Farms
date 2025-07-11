@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, Feather, LogOut, Shield } from 'lucide-react';
+import { Menu, Feather, LogOut, Shield, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,7 +20,7 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname();
   const [isSheetOpen, setSheetOpen] = useState(false);
-  const { user, signOutUser } = useAuth();
+  const { user, loading, signOutUser } = useAuth();
 
   const NavLink = ({ href, label, isMobile = false, onClick }: { href: string; label: string; isMobile?: boolean, onClick?: () => void }) => (
     <Link
@@ -41,6 +41,41 @@ export function Header() {
     </Link>
   );
 
+  const AuthButtons = ({ isMobile = false }: { isMobile?: boolean }) => {
+    if (loading) {
+      return isMobile ? <div className="flex justify-center mt-4"><Loader2 className="h-6 w-6 animate-spin" /></div> : <Loader2 className="h-5 w-5 animate-spin" />;
+    }
+
+    if (user) {
+      return (
+        <>
+          <NavLink href="/admin" label="Admin" isMobile={isMobile} />
+          <Button
+            variant={isMobile ? 'outline' : 'ghost'}
+            size={isMobile ? 'default' : 'sm'}
+            className={isMobile ? 'w-full mt-4' : ''}
+            onClick={() => {
+              setSheetOpen(false);
+              signOutUser();
+            }}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
+        </>
+      );
+    }
+
+    return (
+       <Button asChild variant="outline" size="sm">
+          <Link href="/admin/login">
+              <Shield className="mr-2 h-4 w-4"/>
+              Login
+          </Link>
+      </Button>
+    );
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -54,22 +89,7 @@ export function Header() {
           {navLinks.map(link => (
             <NavLink key={link.href} href={link.href} label={link.label} />
           ))}
-           {user ? (
-            <>
-              <NavLink href="/admin" label="Admin" />
-              <Button variant="ghost" size="sm" onClick={signOutUser}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
-            </>
-          ) : (
-             <Button asChild variant="outline" size="sm">
-                <Link href="/admin/login">
-                    <Shield className="mr-2 h-4 w-4"/>
-                    Login
-                </Link>
-            </Button>
-          )}
+          <AuthButtons />
         </nav>
 
         {/* Mobile Navigation */}
@@ -93,16 +113,7 @@ export function Header() {
                   ))}
                 </nav>
                 <div className="mt-auto">
-                  {user ? (
-                    <>
-                      <NavLink href="/admin" label="Admin Dashboard" isMobile />
-                      <Button variant="outline" className="w-full mt-4" onClick={() => { setSheetOpen(false); signOutUser(); }}>
-                        <LogOut className="mr-2 h-5 w-5" /> Logout
-                      </Button>
-                    </>
-                  ) : (
-                    <NavLink href="/admin/login" label="Login" isMobile />
-                  )}
+                    <AuthButtons isMobile />
                 </div>
               </div>
             </SheetContent>
