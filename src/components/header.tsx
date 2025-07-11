@@ -54,7 +54,7 @@ export function Header() {
           {navLinks.map(link => (
             <NavLink key={link.href} href={link.href} label={link.label} />
           ))}
-           {user && (
+           {user ? (
             <>
               <NavLink href="/admin" label="Admin" />
               <Button variant="ghost" size="sm" onClick={signOutUser}>
@@ -62,6 +62,13 @@ export function Header() {
                 Logout
               </Button>
             </>
+          ) : (
+             <Button asChild variant="outline" size="sm">
+                <Link href="/admin/login">
+                    <Shield className="mr-2 h-4 w-4"/>
+                    Admin Login
+                </Link>
+            </Button>
           )}
         </nav>
 
