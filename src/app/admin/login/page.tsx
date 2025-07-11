@@ -15,27 +15,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Phone } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
-// Helper to set up Recaptcha
-const setupRecaptcha = () => {
-  if (typeof window !== 'undefined' && 'recaptchaVerifier' in window) {
-    (window as any).recaptchaVerifier.clear();
-  }
-  
-  return new RecaptchaVerifier(auth, 'recaptcha-container', {
-    'size': 'invisible',
-    'callback': (response: any) => {
-      // reCAPTCHA solved, allow signInWithPhoneNumber.
-      console.log("Recaptcha solved");
-    }
-  });
-};
-
 
 export default function AdminLoginPage() {
   const [phoneNumber, setPhoneNumber] = useState('+91');
   const [otp, setOtp] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [recaptcha, setRecaptcha] = useState<RecaptchaVerifier | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const { user, isAdmin } = useAuth();
@@ -47,12 +33,23 @@ export default function AdminLoginPage() {
     }
   }, [user, isAdmin, router]);
 
+  // Setup reCAPTCHA on mount
   useEffect(() => {
-    // Set up recaptcha on mount
-    if (typeof window !== 'undefined') {
-      (window as any).recaptchaVerifier = setupRecaptcha();
+    if (!auth) return;
+    try {
+        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response: any) => {
+                // reCAPTCHA solved, allow signInWithPhoneNumber.
+                console.log("Recaptcha solved");
+            }
+        });
+        setRecaptcha(verifier);
+    } catch(e) {
+        console.error("RecaptchaVerifier error", e)
     }
-  }, []);
+  }, [auth]);
+
 
   const handleSendOtp = async () => {
     if (!phoneNumber || !/^\+[1-9]\d{1,14}$/.test(phoneNumber)) {
@@ -63,11 +60,19 @@ export default function AdminLoginPage() {
       });
       return;
     }
+    
+    if (!recaptcha) {
+        toast({
+            variant: "destructive",
+            title: "Recaptcha not ready",
+            description: "Please wait a moment and try again.",
+        });
+        return;
+    }
 
     setLoading(true);
     try {
-      const verifier = (window as any).recaptchaVerifier;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptcha);
       setConfirmationResult(result);
       toast({
         title: "OTP Sent",
@@ -78,7 +83,7 @@ export default function AdminLoginPage() {
       toast({
         variant: "destructive",
         title: "Failed to send OTP",
-        description: "Please check the phone number or try again later.",
+        description: "Please check the number or Firebase project setup.",
       });
     } finally {
       setLoading(false);
@@ -148,7 +153,7 @@ export default function AdminLoginPage() {
                   disabled={loading}
                 />
               </div>
-              <Button type="button" className="w-full" onClick={handleSendOtp} disabled={loading}>
+              <Button type="button" className="w-full" onClick={handleSendOtp} disabled={loading || !recaptcha}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Phone className="mr-2 h-4 w-4" />}
                 Send OTP
               </Button>
