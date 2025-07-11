@@ -32,7 +32,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[60vh] flex items-center justify-center text-center overflow-hidden">
+      <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
         <video
           autoPlay
           loop
@@ -43,18 +43,18 @@ export default function Home() {
           <source src={introVideoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <div className="absolute z-10 inset-0 bg-black/50"></div>
-        <div className="container mx-auto relative z-20 px-4 h-full">
-          <div className="absolute bottom-8 right-8 text-right">
-            <Button asChild variant="outline" size="lg" className="bg-background/20 backdrop-blur-sm border-white/50 text-white hover:bg-white/10">
+        <div className="absolute z-10 inset-0 bg-black/40"></div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className="bg-black text-white py-8 px-4 text-center">
+        <div className="container mx-auto flex flex-col items-center gap-4">
+           <Button asChild variant="outline" size="lg" className="bg-transparent border-white/80 text-white hover:bg-white hover:text-black">
               <Link href="/birds">
                 View Our Collection
               </Link>
             </Button>
-            <div className="mt-4 text-center">
-              <ChevronDown className="h-8 w-8 text-white/80 animate-bounce mx-auto" />
-            </div>
-          </div>
+            <ChevronDown className="h-8 w-8 text-white/80 animate-bounce" />
         </div>
       </section>
 
