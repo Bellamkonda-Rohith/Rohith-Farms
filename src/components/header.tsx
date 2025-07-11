@@ -70,7 +70,7 @@ export function Header() {
        <Button asChild variant="outline" size="sm">
           <Link href="/admin/login">
               <Shield className="mr-2 h-4 w-4"/>
-              Login
+              Admin Login
           </Link>
       </Button>
     );
