@@ -84,7 +84,7 @@ export default function Home() {
         <div className="container mx-auto text-center max-w-3xl">
           <h2 className="text-3xl font-bold mb-4">Our Commitment</h2>
           <p className="text-muted-foreground mb-6">
-            At Rohith Game Farm, we are dedicated to preserving and enhancing top-tier gamefowl bloodlines. With a focus on health, vitality, and honesty, we provide birds that meet the highest standards.
+            At Rohith Farms, we are dedicated to preserving and enhancing top-tier gamefowl bloodlines. With a focus on health, vitality, and honesty, we provide birds that meet the highest standards.
           </p>
           <Button variant="outline" asChild>
             <Link href="/about">Learn More About Our Farm</Link>
