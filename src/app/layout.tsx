@@ -30,7 +30,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
-          <WhatsAppButton phoneNumber="+919876543210" />
+          <WhatsAppButton phoneNumber="+910000000000" />
           <Toaster />
         </AuthProvider>
       </body>

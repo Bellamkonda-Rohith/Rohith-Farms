@@ -4,7 +4,7 @@ import { Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 
 export default function ContactPage() {
   const farmLocation = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.478280336201!2d76.99498731480206!3d11.004787992219992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba859a4f91361c3%3A0x6b4f7cbe5f6e3c8!2sCoimbatore%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1616161616161!5m2!1sen!2sin";
-  const phoneNumber = "+919876543210";
+  const phoneNumber = "+910000000000";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent("Hi, I would like to inquire about your gamefowl.")}`;
   const callUrl = `tel:${phoneNumber}`;
 

@@ -50,8 +50,8 @@ export default function BirdDetailPage() {
   }
 
   const whatsappMessage = `Hi, I’m interested in the bird ${bird.name} (${bird.id}).`;
-  const whatsappUrl = `https://wa.me/+919876543210?text=${encodeURIComponent(whatsappMessage)}`;
-  const callUrl = `tel:+919876543210`;
+  const whatsappUrl = `https://wa.me/+910000000000?text=${encodeURIComponent(whatsappMessage)}`;
+  const callUrl = `tel:+910000000000`;
 
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">

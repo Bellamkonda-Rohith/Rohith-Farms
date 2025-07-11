@@ -27,11 +27,11 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-5 w-5" />
-                <a href="tel:+919876543210" className="hover:text-primary">+91 98765 43210</a>
+                <a href="tel:+910000000000" className="hover:text-primary">+91 00000 00000</a>
               </li>
               <li className="flex items-center gap-2">
                 <MessageCircle className="h-5 w-5" />
-                 <a href="https://wa.me/+919876543210" target="_blank" rel="noopener noreferrer" className="hover:text-primary">WhatsApp</a>
+                 <a href="https://wa.me/+910000000000" target="_blank" rel="noopener noreferrer" className="hover:text-primary">WhatsApp</a>
               </li>
             </ul>
           </div>
