@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
 
 export const metadata: Metadata = {
-  title: "Rohith Game Farm",
+  title: "Rohith Farms",
   description: "High-quality gamefowl breeding and sales.",
 };
 

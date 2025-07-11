@@ -7,7 +7,7 @@ export default function AboutUsPage() {
     <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-extrabold tracking-tight font-serif text-primary sm:text-5xl md:text-6xl">
-          About Rohith Game Farm
+          About Rohith Farms
         </h1>
         <p className="mt-4 max-w-2xl mx-auto text-xl text-muted-foreground">
           A Legacy of Strength, Health, and Honesty.
@@ -17,7 +17,7 @@ export default function AboutUsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="space-y-6 text-lg text-foreground/90">
           <p>
-            Welcome to Rohith Game Farm, a place born from a deep passion for the art and science of gamefowl breeding. Our journey began with a simple mission: to cultivate and preserve powerful bloodlines known for their exceptional traits, robust health, and unwavering spirit.
+            Welcome to Rohith Farms, a place born from a deep passion for the art and science of gamefowl breeding. Our journey began with a simple mission: to cultivate and preserve powerful bloodlines known for their exceptional traits, robust health, and unwavering spirit.
           </p>
           <p>
             We believe in complete transparency and honesty. Every bird raised on our farm is a testament to our commitment to quality. From spacious, clean environments to a carefully managed diet, we ensure our fowl are in peak condition.
@@ -31,7 +31,7 @@ export default function AboutUsPage() {
             <CardContent className="p-0">
               <Image
                 src="https://placehold.co/600x400.png"
-                alt="Rohith Game Farm Founder"
+                alt="Rohith Farms Founder"
                 width={600}
                 height={400}
                 className="w-full h-auto object-cover"

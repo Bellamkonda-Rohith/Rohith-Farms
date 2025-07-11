@@ -12,7 +12,7 @@ export function Footer() {
       <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-lg font-bold font-serif mb-2">Rohith Game Farm</h3>
+            <h3 className="text-lg font-bold font-serif mb-2">Rohith Farms</h3>
             <p className="text-muted-foreground">Breeding excellence and champion bloodlines since 2010.</p>
           </div>
           <div>
@@ -42,7 +42,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Rohith Game Farm. All Rights Reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Rohith Farms. All Rights Reserved.</p>
         </div>
       </div>
     </footer>

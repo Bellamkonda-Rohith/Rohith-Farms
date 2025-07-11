@@ -81,7 +81,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Feather className="h-6 w-6 text-primary" />
-          <span className="font-bold font-serif text-xl">Rohith Game Farm</span>
+          <span className="font-bold font-serif text-xl">Rohith Farms</span>
         </Link>
         
         {/* Desktop Navigation */}
@@ -105,7 +105,7 @@ export function Header() {
               <div className="p-6 flex flex-col h-full">
                 <Link href="/" className="flex items-center gap-2 mb-8" onClick={() => setSheetOpen(false)}>
                   <Feather className="h-6 w-6 text-primary" />
-                  <span className="font-bold font-serif text-xl">Rohith Game Farm</span>
+                  <span className="font-bold font-serif text-xl">Rohith Farms</span>
                 </Link>
                 <nav className="flex flex-col gap-4">
                   {navLinks.map(link => (

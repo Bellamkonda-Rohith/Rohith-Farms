@@ -81,7 +81,7 @@ export default function ContactPage() {
             allowFullScreen={false}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="Rohith Game Farm Location"
+            title="Rohith Farms Location"
           ></iframe>
         </div>
       </div>
