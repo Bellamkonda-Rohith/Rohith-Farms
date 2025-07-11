@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BirdCard } from "@/components/bird-card";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, ChevronDown, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Bird } from "@/lib/types";
 import { getFeaturedBirds } from "@/lib/birds";
@@ -44,8 +44,17 @@ export default function Home() {
           Your browser does not support the video tag.
         </video>
         <div className="absolute z-10 inset-0 bg-black/50"></div>
-        <div className="container mx-auto relative z-20 px-4">
-          {/* Text removed as per request */}
+        <div className="container mx-auto relative z-20 px-4 h-full">
+          <div className="absolute bottom-8 left-8 text-left">
+            <Button asChild variant="outline" size="lg" className="bg-background/20 backdrop-blur-sm border-white/50 text-white hover:bg-white/10">
+              <Link href="/birds">
+                View Our Collection
+              </Link>
+            </Button>
+            <div className="mt-4 text-center">
+              <ChevronDown className="h-8 w-8 text-white/80 animate-bounce mx-auto" />
+            </div>
+          </div>
         </div>
       </section>
 
