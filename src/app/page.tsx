@@ -45,7 +45,7 @@ export default function Home() {
         </video>
         <div className="absolute z-10 inset-0 bg-black/50"></div>
         <div className="container mx-auto relative z-20 px-4 h-full">
-          <div className="absolute bottom-8 left-8 text-left">
+          <div className="absolute bottom-8 right-8 text-right">
             <Button asChild variant="outline" size="lg" className="bg-background/20 backdrop-blur-sm border-white/50 text-white hover:bg-white/10">
               <Link href="/birds">
                 View Our Collection
