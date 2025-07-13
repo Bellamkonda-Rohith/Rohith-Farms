@@ -4,22 +4,30 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BirdCard } from "@/components/bird-card";
-import { ArrowRight, ChevronDown, Loader2 } from "lucide-react";
+import { ArrowRight, ChevronDown, Loader2, AlertTriangle } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Bird } from "@/lib/types";
 import { getFeaturedBirds } from "@/lib/birds";
+import { db } from "@/lib/firebase";
 
 export default function Home() {
   const [featuredBirds, setFeaturedBirds] = useState<Bird[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadBirds() {
+      if (!db) {
+        setError("Firebase is not configured. Please add your project credentials in the Secrets tab to see your featured birds.");
+        setLoading(false);
+        return;
+      }
       try {
         const birds = await getFeaturedBirds();
         setFeaturedBirds(birds);
       } catch (error) {
         console.error("Failed to fetch featured birds:", error);
+        setError("Could not load featured birds. Please check your connection and try again.");
       } finally {
         setLoading(false);
       }
@@ -62,12 +70,27 @@ export default function Home() {
             <div className="flex justify-center items-center h-48">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredBirds.map((bird) => (
-                <BirdCard key={bird.id} bird={bird} />
-              ))}
+          ) : error ? (
+            <div className="text-center py-10 text-destructive-foreground bg-destructive/10 rounded-lg">
+              <AlertTriangle className="mx-auto h-8 w-8 mb-2" />
+              <p className="font-semibold">Configuration Needed</p>
+              <p className="text-sm">{error}</p>
             </div>
+          ) : (
+            <>
+              {featuredBirds.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {featuredBirds.map((bird) => (
+                    <BirdCard key={bird.id} bird={bird} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                   <p className="text-muted-foreground text-lg">No featured birds found.</p>
+                   <p className="text-muted-foreground text-sm">Have you added any birds and marked them as 'featured' in the admin dashboard?</p>
+                </div>
+              )}
+            </>
           )}
           <div className="text-center mt-12">
             <Button asChild size="lg">
