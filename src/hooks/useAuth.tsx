@@ -25,6 +25,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
 
   useEffect(() => {
+    // If Firebase is not configured, don't attempt to set up auth listeners.
+    if (!auth || !db) {
+      setLoading(false);
+      return;
+    }
+
     let unsubscribeFromProfile: Unsubscribe | undefined;
 
     const unsubscribeFromAuth = onAuthStateChanged(auth, async (user) => {
@@ -88,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signOutUser = async () => {
+    if (!auth) return;
     try {
       await signOut(auth);
       router.push('/');
