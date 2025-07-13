@@ -16,6 +16,7 @@ import { getStorage, type FirebaseStorage } from "firebase/storage";
 //    - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
 //    - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 //    - NEXT_PUBLIC_FIREBASE_APP_ID
+//    - NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID (Optional: for Analytics)
 // 3. Paste the corresponding value from your Firebase project's config.
 // =================================================================
 const firebaseConfig = {
@@ -25,6 +26,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID, // Optional: only needed for Google Analytics
 };
 
 // Conditionally initialize Firebase
@@ -33,16 +35,32 @@ let auth: Auth | null = null;
 let db: Firestore | null = null;
 let storage: FirebaseStorage | null = null;
 
-// Check if all required environment variables are set
-const areAllConfigValuesPresent = Object.values(firebaseConfig).every(value => !!value);
+// Check if all *required* environment variables are set.
+// Note: measurementId is optional and not checked here.
+const areRequiredConfigValuesPresent = 
+    firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.storageBucket &&
+    firebaseConfig.messagingSenderId &&
+    firebaseConfig.appId;
 
-if (areAllConfigValuesPresent) {
-  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-  auth = getAuth(app);
-  db = getFirestore(app);
-  storage = getStorage(app);
+if (areRequiredConfigValuesPresent) {
+  try {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+  } catch (error) {
+    console.error("Firebase initialization error:", error);
+    // Set all to null to ensure graceful failure
+    app = null;
+    auth = null;
+    db = null;
+    storage = null;
+  }
 } else {
-  console.warn("Firebase configuration is missing or incomplete. Firebase services will be disabled. Please check your environment variables/secrets.");
+  console.warn("Firebase configuration is missing or incomplete. Firebase services will be disabled. Please check your environment variables/secrets in the Secrets tab.");
 }
 
 export { app, auth, db, storage };
