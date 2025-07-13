@@ -1,1 +1,0 @@
-This file is no longer needed as the project has been successfully pushed to GitHub. You can now clone the repository from GitHub to your local machine.
