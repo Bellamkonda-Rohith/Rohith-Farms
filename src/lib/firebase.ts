@@ -4,16 +4,21 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-// IMPORTANT: Replace this with your own Firebase project's configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// =================================================================
+// IMPORTANT: REPLACE WITH YOUR OWN FIREBASE PROJECT CONFIGURATION
+// =================================================================
+// 1. Go to your Firebase project's settings.
+// 2. In the "General" tab, find your Web App.
+// 3. Copy the firebaseConfig object and paste it here.
+// =================================================================
 const firebaseConfig = {
-  apiKey: "AIzaSyDXTzwZ2rrtxsbbsy8LQgusADGUYX_j31w",
-  authDomain: "rohith-farms.firebaseapp.com",
-  projectId: "rohith-farms",
-  storageBucket: "rohith-farms.firebasestorage.app",
-  messagingSenderId: "474148243792",
-  appId: "1:474148243792:web:e7ca8390bcd672de478455",
-  measurementId: "G-1G47ZY9GRJ"
+  apiKey: "YOUR_API_KEY_HERE",
+  authDomain: "YOUR_AUTH_DOMAIN_HERE",
+  projectId: "YOUR_PROJECT_ID_HERE",
+  storageBucket: "YOUR_STORAGE_BUCKET_HERE",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID_HERE",
+  appId: "YOUR_APP_ID_HERE",
+  measurementId: "YOUR_MEASUREMENT_ID_HERE" // Optional
 };
 
 // Initialize Firebase
