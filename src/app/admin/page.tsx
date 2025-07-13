@@ -107,6 +107,17 @@ export default function AdminDashboardPage() {
     }
   };
   
+  if (!db) {
+      return (
+          <div className="container mx-auto py-8 text-center">
+              <h1 className="text-2xl font-bold text-destructive">Firebase Not Configured</h1>
+              <p className="text-muted-foreground mt-4">
+                  This page requires a connection to Firebase. Please configure your credentials in the Secrets tab.
+              </p>
+          </div>
+      )
+  }
+  
   // While checking auth or loading initial data, show a full-screen spinner.
   if (authLoading || (isAdmin && loadingData)) {
      return (
