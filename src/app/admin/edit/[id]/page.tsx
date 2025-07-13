@@ -118,7 +118,7 @@ export default function EditBirdPage() {
 
 
   useEffect(() => {
-    if (!isNew) {
+    if (!isNew && db) {
       const fetchBird = async () => {
         try {
           const docRef = doc(db, 'birds', birdId);
@@ -145,6 +145,8 @@ export default function EditBirdPage() {
         }
       };
       fetchBird();
+    } else {
+        setLoading(false);
     }
   }, [birdId, isNew, form, router, toast]);
 
@@ -152,6 +154,10 @@ export default function EditBirdPage() {
     if (isNew) {
       toast({ variant: 'destructive', title: 'Save First', description: 'Please save the bird before uploading media.' });
       return;
+    }
+    if (!storage) {
+        toast({ variant: 'destructive', title: 'Storage Not Configured', description: 'Please configure Firebase to upload files.' });
+        return;
     }
     const uniqueFileName = `${Date.now()}-${file.name}`;
     const storageRef = ref(storage, `birds/${birdId}/${field.replace('.','/')}/${uniqueFileName}`);
@@ -214,7 +220,7 @@ export default function EditBirdPage() {
 
   const handleRemoveMedia = (url: string, field: UploadableField) => {
     // We only try to delete from storage if it's a firebase storage URL.
-    if (url.includes('firebasestorage.googleapis.com')) {
+    if (url.includes('firebasestorage.googleapis.com') && storage) {
       try {
         const storageRef = ref(storage, url);
         deleteObject(storageRef).catch(err => console.warn("Could not delete file from storage, it might not exist.", err));
@@ -236,6 +242,11 @@ export default function EditBirdPage() {
 
   const onSubmit = async (data: BirdFormData) => {
     setSaving(true);
+    if (!db) {
+        toast({ variant: 'destructive', title: 'Database Not Configured', description: 'Please configure Firebase to save data.' });
+        setSaving(false);
+        return;
+    }
     try {
       if (isNew) {
         const newDocRef = await addDoc(collection(db, 'birds'), { ...data, createdAt: serverTimestamp() });
@@ -285,6 +296,7 @@ export default function EditBirdPage() {
                    <FormDescription className="mt-2">
                     Add a single URL above, or drag & drop a file to upload.
                     {isNew && <strong> Save the bird first to enable uploads.</strong>}
+                    {!storage && <strong className="text-destructive-foreground"> Uploads disabled. Configure Firebase storage.</strong>}
                   </FormDescription>
 
                   <div 
@@ -352,6 +364,17 @@ export default function EditBirdPage() {
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
+  }
+  
+  if (!db) {
+      return (
+          <div className="container mx-auto py-8 text-center">
+              <h1 className="text-2xl font-bold text-destructive">Firebase Not Configured</h1>
+              <p className="text-muted-foreground mt-4">
+                  Please configure your Firebase credentials in the Secrets tab to manage your data.
+              </p>
+          </div>
+      )
   }
 
   return (

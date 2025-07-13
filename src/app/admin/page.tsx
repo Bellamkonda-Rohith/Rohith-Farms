@@ -63,13 +63,30 @@ export default function AdminDashboardPage() {
           setLoadingData(false);
         }
       };
-      fetchBirds();
+
+      if (db) { // Only fetch if db is initialized
+          fetchBirds();
+      } else {
+          setLoadingData(false);
+          setError("Firebase is not configured. Please add your credentials in the Secrets tab.");
+      }
     }
   }, [authLoading, isAdmin, router]);
 
   const handleDeleteBird = async () => {
     if (!birdToDelete) return;
     setIsDeleting(true);
+
+    if (!db) {
+        toast({
+          variant: 'destructive',
+          title: "Error",
+          description: "Firebase is not configured.",
+        });
+        setIsDeleting(false);
+        return;
+    }
+
     try {
       await deleteDoc(doc(db, 'birds', birdToDelete.id));
       toast({
@@ -122,7 +139,7 @@ export default function AdminDashboardPage() {
         </CardHeader>
         <CardContent>
           {error && (
-            <div className="text-center py-10 text-red-600">
+            <div className="text-center py-10 text-destructive">
               <AlertTriangle className="mx-auto h-8 w-8 mb-2" />
               <p>{error}</p>
             </div>
